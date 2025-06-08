@@ -16,8 +16,11 @@ public class WordleGame implements Game {
     private final ConsoleIO consoleIO;
     private final StatSaver statSaver;
     private final StreakCounter streakCounter;
+    private ModelListener listener;
 
-        public WordleGame(WordProvider wordProvider, WordValidator wordValidator, ConsoleIO consoleIO, StatSaver statSaver, StreakCounter streakCounter) {
+    private String feedback;
+
+    public WordleGame(WordProvider wordProvider, WordValidator wordValidator, ConsoleIO consoleIO, StatSaver statSaver, StreakCounter streakCounter) {
         this.wordProvider = wordProvider;
         this.wordValidator = wordValidator;
         this.consoleIO = consoleIO;
@@ -50,7 +53,7 @@ public class WordleGame implements Game {
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
-                    consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + getFeedback(targetWord, GUESSED.get(attempt - 1)) + "\n");
+                    consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + feedback + "\n");
                 }
                 continue;
             }
@@ -64,7 +67,7 @@ public class WordleGame implements Game {
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
-                    consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + getFeedback(targetWord, GUESSED.get(attempt - 1)) + "\n");
+                    consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + feedback + "\n");
                 }
                 continue;
             }
@@ -77,7 +80,7 @@ public class WordleGame implements Game {
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-                consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + getFeedback(targetWord, GUESSED.get(attempt - 1)) + "\n");
+                consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + feedback + "\n");
 
                 continue;
             }
@@ -90,7 +93,8 @@ public class WordleGame implements Game {
                 return;
             } else {
                 GUESSED.add(guess);
-                consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + getFeedback(targetWord, GUESSED.get(attempt - 1)) + "\n");
+                feedback = getFeedback(targetWord, GUESSED.get(attempt - 1));
+                consoleIO.showMessage("\n" + getGuessSpaced(GUESSED.get(attempt - 1)) + "\n" + feedback + "\n");
             }
         }
 
@@ -107,7 +111,7 @@ public class WordleGame implements Game {
         }
         return output;
     }
-    
+
     private String getFeedback(String targetWord, String guess) {
         String feedback = "";
         boolean[] used = new boolean[5];
@@ -151,7 +155,7 @@ public class WordleGame implements Game {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-        
+
         readStats();
 
         String input = "";
@@ -192,4 +196,13 @@ public class WordleGame implements Game {
         consoleIO.showMessage("");
     }
 
+    public void addListener(ModelListener listener) {
+        this.listener = listener;
+    }
+
+    private void notifyListener() {
+        if (listener != null) {
+            listener.onModelChanged(feedback);
+        }
+    }
 }

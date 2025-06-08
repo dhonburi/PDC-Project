@@ -16,6 +16,8 @@ public class WordleMain {
         StatSaver statSaver = new StatSaver();
         StreakCounter streakCounter = new StreakCounter();
         WordleGame game = new WordleGame(wordProvider, wordValidator, consoleIO, statSaver, streakCounter);
+        View view = new View();
+        Controller controller = new Controller(game, view);
 
         game.startGame();
         
