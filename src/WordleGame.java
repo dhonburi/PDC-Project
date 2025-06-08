@@ -35,7 +35,8 @@ public class WordleGame implements Game {
         consoleIO.showMessage("The symbol under the tiles will show how close your guess was to the word.");
         consoleIO.showMessage("V: Green (Letter is in the word and in the correct spot.)");
         consoleIO.showMessage("?: Yellow (Letter is in the word but in the wrong spot.)");
-        consoleIO.showMessage("X: Grey (Letter is not in the word in any spot.)\n");
+        consoleIO.showMessage("X: Grey (Letter is not in the word in any spot.)");
+        consoleIO.showMessage("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
 
         for (int attempt = 1; attempt <= maxTries; attempt++) {
             String guess = consoleIO.getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ");
