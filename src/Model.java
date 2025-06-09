@@ -13,7 +13,6 @@ public class Model {
 
     private final WordProvider wordProvider;
     private final WordValidator wordValidator;
-    private final ConsoleIO consoleIO;
     private final StatSaver statSaver;
     private final StreakCounter streakCounter;
     private ModelListener listener;
@@ -23,10 +22,9 @@ public class Model {
 
     ArrayList<String> GUESSED = new ArrayList<>();
 
-    public Model(WordProvider wordProvider, WordValidator wordValidator, ConsoleIO consoleIO, StatSaver statSaver, StreakCounter streakCounter) {
+    public Model(WordProvider wordProvider, WordValidator wordValidator, StatSaver statSaver, StreakCounter streakCounter) {
         this.wordProvider = wordProvider;
         this.wordValidator = wordValidator;
-        this.consoleIO = consoleIO;
         this.statSaver = statSaver;
         this.streakCounter = streakCounter;
     }

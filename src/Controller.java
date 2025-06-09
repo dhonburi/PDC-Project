@@ -129,54 +129,34 @@ public class Controller implements Game {
         System.out.println("?: Yellow (Letter is in the word but in the wrong spot.)");
         System.out.println("X: Grey (Letter is not in the word in any spot.)");
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
-
+        
+        Thread currentThread;
+        
         for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
 
             if (!model.isFiveChars(guess)) {
-                System.out.println("Invalid guess! Must be exactly 5 letters.");
+               view.updatePopUp("Must be exactly 5 letters.");
                 attempt--;
-                if (attempt > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-                }
                 continue;
+            } else {
             }
 
             if (!WordValidator.isValidGuessWord(guess)) {
-                System.out.println("Word not in list. Try another.");
+                view.updatePopUp("Word not in list.");
                 attempt--;
-                if (attempt > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-                }
                 continue;
             }
 
             if (model.GuessListContains(guess)) {
-                System.out.println("Word already guessed. Try another.");
+                view.updatePopUp("Word already guessed.");
                 attempt--;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-
                 continue;
             }
 
             if (guess.equals(targetWord)) {
                 model.win(attempt);
-                System.out.println(" Congratulations! You guessed the word: " + targetWord + "\n");
+                view.updatePopUp("Congratulations! You guessed the word!");
                 model.saveStats(attempt);
                 model.addStreak();
                 gameOver();
@@ -186,11 +166,10 @@ public class Controller implements Game {
 
                 feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
                 model.clearCurrentWord();
-                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
             }
         }
 
-        System.out.println("Game over! The correct word was: " + targetWord + "\n");
+        view.updatePopUp(targetWord.toUpperCase());
         model.saveStats(7);
         model.endStreak();
         gameOver();
