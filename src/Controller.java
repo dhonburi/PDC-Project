@@ -36,7 +36,7 @@ public class Controller implements Game {
                 char c = e.getKeyChar();
                 if (Character.isLetter(c)) {
                     c = Character.toUpperCase(c);
-                    model.addLetter(c);  // update model
+                    model.addLetter(c);
                     view.updateTileText();
                 } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
                     model.removeLastLetter();
@@ -47,6 +47,36 @@ public class Controller implements Game {
                     synchronized (Controller.this) {
                         Controller.this.notify();
                     }
+                }
+            }
+        });
+
+        for (char c = 'A'; c <= 'Z'; c++) {
+            final char keyChar = c;
+            view.registerKeyButtonListener(c, new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    model.addLetter(keyChar);
+                    view.updateTileText();
+                }
+            });
+        }
+
+        view.registerKeyButtonListener('-', new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.removeLastLetter();
+                view.updateTileText();
+            }
+        });
+
+        view.registerKeyButtonListener('+', new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                latestInput = model.getCurrentWord();
+                inputReady = true;
+                synchronized (Controller.this) {
+                    Controller.this.notify();
                 }
             }
         });
@@ -81,7 +111,7 @@ public class Controller implements Game {
 
         for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
-            
+
             if (!model.isFiveChars(guess)) {
                 System.out.println("Invalid guess! Must be exactly 5 letters.");
                 attempt--;
@@ -132,7 +162,7 @@ public class Controller implements Game {
                 return;
             } else {
                 model.addGuessList(guess);
-                
+
                 feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
                 model.clearCurrentWord();
                 System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");

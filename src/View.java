@@ -105,11 +105,13 @@ public class View extends JFrame implements ModelListener {
                         key = new JButton("ENTER");
                         key.setFont(new Font("Helvetica", Font.BOLD, 16));
                         key.setPreferredSize(new Dimension(70, 60));
+                        keyButtons.put(c, key);
                         break;
                     case '-':
                         key = new JButton("<");
                         key.setFont(new Font("Helvetica", Font.BOLD, 24));
                         key.setPreferredSize(new Dimension(70, 60));
+                        keyButtons.put(c, key);
                         break;
                     default:
                         key = new JButton(String.valueOf(c));
@@ -191,6 +193,13 @@ public class View extends JFrame implements ModelListener {
 
     public void registerKeyListener(KeyListener listener) {
         this.addKeyListener(listener);
+    }
+
+    public void registerKeyButtonListener(char c, ActionListener listener) {
+        JButton key = keyButtons.get(Character.toUpperCase(c));
+        if (key != null) {
+            key.addActionListener(listener);
+        }
     }
 
     @Override
