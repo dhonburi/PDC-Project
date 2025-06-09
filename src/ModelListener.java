@@ -8,5 +8,5 @@
  * @author dhonl
  */
 public interface ModelListener {
-    void onModelChanged(String newData);
+    void onModelChanged(String feedback, int attempt);
 }

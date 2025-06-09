@@ -17,6 +17,8 @@ public class Model {
     private final StatSaver statSaver;
     private final StreakCounter streakCounter;
     private ModelListener listener;
+    private String feedback;
+    private int attempt;
 
     ArrayList<String> GUESSED = new ArrayList<>();
 
@@ -67,18 +69,15 @@ public class Model {
     public void endStreak() {
         streakCounter.endStreak();
     }
-
-
-    public String getGuessSpaced(String guess) {
-        String output = "";
-        for (int i = 0; i < 5; i++) {
-            output += guess.charAt(i) + " ";
-        }
-        return output;
+    public void win(int attempts) {
+        feedback = "VVVVV";
+        attempt = attempts;
+        notifyListener();
     }
-
-    public String getFeedback(String targetWord, String guess) {
-        String feedback = "";
+    
+    public String getFeedback(String targetWord, String guess, int attempts) {
+        feedback = "";
+        attempt = attempts;
         boolean[] used = new boolean[5];
 
         for (int i = 0; i < 5; i++) {
@@ -90,10 +89,10 @@ public class Model {
             }
         }
 
-        String output = "";
+        String temp = "";
         for (int i = 0; i < 5; i++) {
             if (feedback.charAt(i) == 'V') {
-                output += "V ";
+                temp += "V";
             } else if (feedback.charAt(i) == '_') {
                 boolean found = false;
                 for (int j = 0; j < 5; j++) {
@@ -104,14 +103,15 @@ public class Model {
                     }
                 }
                 if (found) {
-                    output += "? ";
+                    temp += "?";
                 } else {
-                    output += "X ";
+                    temp += "X";
                 }
             }
         }
-
-        return output;
+        feedback = temp;
+        notifyListener();
+        return feedback;
     }
 
     public void updateStats() {
@@ -144,7 +144,7 @@ public class Model {
 
     private void notifyListener() {
         if (listener != null) {
-
+            listener.onModelChanged(feedback, attempt);
         }
     }
 }

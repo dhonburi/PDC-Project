@@ -20,19 +20,21 @@ public class Controller implements Game {
     private boolean inputReady = false;
     
     private String feedback;
+    private int attempt;
 
     public Controller(Model model, View view) {
         this.model = model;
         this.view = view;
+        
+        model.addListener(view);
 
         view.submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 latestInput = view.inputField.getText().trim().toLowerCase();
-                view.inputField.setText("");
                 inputReady = true;
                 synchronized (Controller.this) {
-                    Controller.this.notify(); // Resume getUserInput()
+                    Controller.this.notify();
                 }
             }
         });
@@ -44,7 +46,7 @@ public class Controller implements Game {
         try {
             synchronized (this) {
                 while (!inputReady) {
-                    this.wait(); // Wait until Enter is pressed
+                    this.wait();
                 }
             }
         } catch (InterruptedException e) {
@@ -65,7 +67,7 @@ public class Controller implements Game {
         System.out.println("X: Grey (Letter is not in the word in any spot.)");
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
 
-        for (int attempt = 1; attempt <= maxTries; attempt++) {
+        for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ");
 
             if (!model.isFiveChars(guess)) {
@@ -77,7 +79,7 @@ public class Controller implements Game {
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
-                    System.out.println("\n" + model.getGuessSpaced(model.getGuessList(attempt - 1)) + "\n" + feedback + "\n");
+                    System.out.println("\n" + model.getGuessList(attempt - 1)+ "\n" + feedback + "\n");
                 }
                 continue;
             }
@@ -91,7 +93,7 @@ public class Controller implements Game {
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
-                    System.out.println("\n" + model.getGuessSpaced(model.getGuessList(attempt - 1)) + "\n" + feedback + "\n");
+                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
                 }
                 continue;
             }
@@ -104,12 +106,13 @@ public class Controller implements Game {
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
-                System.out.println("\n" + model.getGuessSpaced(model.getGuessList(attempt - 1)) + "\n" + feedback + "\n");
+                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
 
                 continue;
             }
 
             if (guess.equals(targetWord)) {
+                model.win(attempt);
                 System.out.println(" Congratulations! You guessed the word: " + targetWord + "\n");
                 model.saveStats(attempt);
                 model.addStreak();
@@ -117,8 +120,9 @@ public class Controller implements Game {
                 return;
             } else {
                 model.addGuessList(guess);
-                feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1));
-                System.out.println("\n" + model.getGuessSpaced(model.getGuessList(attempt - 1)) + "\n" + feedback + "\n");
+                
+                feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
+                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
             }
         }
 
