@@ -83,16 +83,31 @@ public class View extends JFrame implements ModelListener {
         String[] rows = {
             "QWERTYUIOP",
             "ASDFGHJKL",
-            "ZXCVBNM"
+            "+ZXCVBNM-"
         };
 
         for (String row : rows) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 1));
             rowPanel.setBackground(backroundCol);
             for (char c : row.toCharArray()) {
-                JButton key = new JButton(String.valueOf(c));
-                key.setFont(new Font("Helvetica", Font.BOLD, 24));
-                key.setPreferredSize(new Dimension(45, 60));
+                JButton key;
+                switch (c) {
+                    case '+':
+                        key = new JButton("ENTER");
+                        key.setFont(new Font("Helvetica", Font.BOLD, 16));
+                        key.setPreferredSize(new Dimension(70, 60));
+                        break;
+                    case '-':
+                        key = new JButton("<");
+                        key.setFont(new Font("Helvetica", Font.BOLD, 24));
+                        key.setPreferredSize(new Dimension(70, 60));
+                        break;
+                    default:
+                        key = new JButton(String.valueOf(c));
+                        key.setFont(new Font("Helvetica", Font.BOLD, 22));
+                        key.setPreferredSize(new Dimension(45, 60));
+                        break;
+                }
                 key.setFocusable(false);
                 key.setBackground(keysCol);
                 key.setForeground(Color.WHITE);
