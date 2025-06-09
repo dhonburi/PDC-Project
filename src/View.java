@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
@@ -33,13 +34,12 @@ public class View extends JFrame implements ModelListener {
 
     private final int ROWS = 6;
     private final int COLS = 5;
-    public JTextField inputField;
-    public JButton submitButton;
     private JLabel[][] tiles;
     public String input;
     private int attempts;
     private HashMap<Character, JButton> keyButtons = new HashMap<>();
     private HashMap<Character, Integer> keyColours = new HashMap<>();
+    private String currentWord;
 
     Color backroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
@@ -57,73 +57,12 @@ public class View extends JFrame implements ModelListener {
         setLocationRelativeTo(null); // center on screen
         attempts = 0;
 
-        // Top panel for input (temporary while keyboards not implemented)
-        JPanel inputPanel = new JPanel();
-        inputField = new JTextField(5);
-        
-
-        // Always keep focus
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowOpened(WindowEvent e) {
-                inputField.requestFocusInWindow();
-            }
-        });
-
-        inputField.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                char c = e.getKeyChar();
-
-                // If not a letter, consume the event (ignore input)
-                if (!Character.isLetter(c)) {
-                    e.consume();
-                    return;
-                }
-
-                // If length is already 5, consume the event (ignore input)
-                if (inputField.getText().length() >= 5) {
-                    e.consume();
-                }
-            }
-        });
-        submitButton = new JButton("Submit");
-        inputPanel.add(new JLabel("Guess:"));
-
-        inputPanel.add(inputField);
-        inputPanel.add(submitButton);
-
-        add(inputPanel, BorderLayout.NORTH);
-
         // Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         gridPanel.setBorder(BorderFactory.createEmptyBorder(30, 1000, 30, 1000));
         gridPanel.setBackground(backroundCol);
         gridPanel.setPreferredSize(new Dimension(280, 335));
         tiles = new JLabel[ROWS][COLS];
-
-        inputField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) {
-                updateLabel();
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                updateLabel();
-            }
-
-            public void changedUpdate(DocumentEvent e) {
-                updateLabel(); // rarely used for plain text
-            }
-
-            private void updateLabel() {
-                input = inputField.getText();
-                for (int i = 0; i < input.length(); i++) {
-                    setTile(attempts, i, input.charAt(i));
-                }
-                for (int i = 4; i >= input.length(); i--) {
-                    setTile(attempts, i, ' ');
-                }
-            }
-        });
 
         for (int i = 0; i < ROWS; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
@@ -194,6 +133,16 @@ public class View extends JFrame implements ModelListener {
         setVisible(true);
     }
 
+    public void updateTileText() {
+        input = currentWord;
+        for (int i = 0; i < input.length(); i++) {
+            setTile(attempts, i, input.charAt(i));
+        }
+        for (int i = 4; i >= input.length(); i--) {
+            setTile(attempts, i, ' ');
+        }
+    }
+
     public void setTile(int row, int col, Color background) {
         tiles[row][col].setBackground(background);
     }
@@ -230,7 +179,7 @@ public class View extends JFrame implements ModelListener {
                     break;
             }
         }
-        inputField.setText("");
+        currentWord = "";
     }
 
     public void setKeyColor(char c, Color background) {
@@ -240,17 +189,18 @@ public class View extends JFrame implements ModelListener {
         }
     }
 
-    public void addSubmitListener(java.awt.event.ActionListener listener) {
-        submitButton.addActionListener(listener);
-    }
-
-    public void addEnterListener(ActionListener listener) {
-        inputField.addActionListener(listener);
+    public void registerKeyListener(KeyListener listener) {
+        this.addKeyListener(listener);
     }
 
     @Override
-    public void onModelChanged(String feedback, int attempt) {
+    public void onFeedback(String feedback, int attempt) {
         attempts = attempt;
         feedbackRow(feedback, attempt);
+    }
+
+    @Override
+    public void onModelChanged(String word) {
+        currentWord = word;
     }
 }

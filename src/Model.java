@@ -18,6 +18,7 @@ public class Model {
     private final StreakCounter streakCounter;
     private ModelListener listener;
     private String feedback;
+    private StringBuilder currentWord = new StringBuilder();
     private int attempt;
 
     ArrayList<String> GUESSED = new ArrayList<>();
@@ -49,7 +50,7 @@ public class Model {
     public boolean isValidGuessWord(String guess) {
         return WordValidator.isValidGuessWord(guess);
     }
-    
+
     public boolean isFiveChars(String guess) {
         return guess.length() == 5;
     }
@@ -69,12 +70,13 @@ public class Model {
     public void endStreak() {
         streakCounter.endStreak();
     }
+
     public void win(int attempts) {
         feedback = "VVVVV";
         attempt = attempts;
-        notifyListener();
+        notifyListenerFeedback();
     }
-    
+
     public String getFeedback(String targetWord, String guess, int attempts) {
         feedback = "";
         attempt = attempts;
@@ -110,7 +112,7 @@ public class Model {
             }
         }
         feedback = temp;
-        notifyListener();
+        notifyListenerFeedback();
         return feedback;
     }
 
@@ -138,13 +140,41 @@ public class Model {
         return statSaver.getGuessDist(attempts);
     }
 
+    public void addLetter(char c) {
+        if (currentWord.length() < 5) {
+            currentWord.append(c);
+            notifyListener();
+        }
+    }
+
+    public void removeLastLetter() {
+        if (currentWord.length() > 0) {
+            currentWord.deleteCharAt(currentWord.length() - 1);
+            notifyListener();
+        }
+    }
+
+    public String getCurrentWord() {
+        return currentWord.toString();
+    }
+    
+    public void clearCurrentWord() {
+        currentWord.setLength(0);
+    }
+    
     public void addListener(ModelListener listener) {
         this.listener = listener;
     }
 
+    private void notifyListenerFeedback() {
+        if (listener != null) {
+            listener.onFeedback(feedback, attempt);
+        }
+    }
+    
     private void notifyListener() {
         if (listener != null) {
-            listener.onModelChanged(feedback, attempt);
+            listener.onModelChanged(currentWord.toString());
         }
     }
 }

@@ -1,6 +1,8 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 /*
@@ -28,24 +30,23 @@ public class Controller implements Game {
 
         model.addListener(view);
 
-        view.submitButton.addActionListener(new ActionListener() {
+        view.registerKeyListener(new KeyAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                latestInput = view.inputField.getText().trim().toLowerCase();
-                inputReady = true;
-                synchronized (Controller.this) {
-                    Controller.this.notify();
-                }
-            }
-        });
-
-        this.view.addEnterListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                latestInput = view.inputField.getText().trim().toLowerCase();
-                inputReady = true;
-                synchronized (Controller.this) {
-                    Controller.this.notify();
+            public void keyPressed(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isLetter(c)) {
+                    c = Character.toUpperCase(c);
+                    model.addLetter(c);  // update model
+                    view.updateTileText();
+                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    model.removeLastLetter();
+                    view.updateTileText();
+                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    latestInput = model.getCurrentWord();
+                    inputReady = true;
+                    synchronized (Controller.this) {
+                        Controller.this.notify();
+                    }
                 }
             }
         });
@@ -79,8 +80,8 @@ public class Controller implements Game {
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
 
         for (attempt = 1; attempt <= maxTries; attempt++) {
-            String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ");
-
+            String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
+            
             if (!model.isFiveChars(guess)) {
                 System.out.println("Invalid guess! Must be exactly 5 letters.");
                 attempt--;
@@ -131,8 +132,9 @@ public class Controller implements Game {
                 return;
             } else {
                 model.addGuessList(guess);
-
+                
                 feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
+                model.clearCurrentWord();
                 System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
             }
         }
