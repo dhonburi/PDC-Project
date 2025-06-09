@@ -1,10 +1,12 @@
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -19,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -40,6 +43,10 @@ public class View extends JFrame implements ModelListener {
     private HashMap<Character, JButton> keyButtons = new HashMap<>();
     private HashMap<Character, Integer> keyColours = new HashMap<>();
     private String currentWord;
+    private JButton tutorialButton;
+    private JButton statsButton;
+    private JButton closeButton;
+    private JButton closeButton2;
 
     Color backroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
@@ -47,6 +54,9 @@ public class View extends JFrame implements ModelListener {
     Color green = new Color(106, 170, 100);
     Color yellow = new Color(201, 180, 88);
     Color gray = new Color(58, 58, 60);
+
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
 
     public View() {
 
@@ -56,6 +66,37 @@ public class View extends JFrame implements ModelListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // center on screen
         attempts = 0;
+
+        // Create CardLayout and main panel
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+
+        // First panel (Game)
+        JPanel gamePanel = new JPanel(new BorderLayout());
+        // Top panel for How-to-Play & Stats
+        JPanel topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        topPannel.setBackground(backroundCol);
+        topPannel.setBorder(BorderFactory.createLineBorder(borderCol));
+
+        tutorialButton = new JButton("How to Play");
+        tutorialButton.setFont(new Font("Helvetica", Font.BOLD, 16));
+        tutorialButton.setFocusable(false);
+        tutorialButton.setBackground(backroundCol);
+        tutorialButton.setForeground(Color.WHITE);
+        tutorialButton.setPreferredSize(new Dimension(100, 30));
+        tutorialButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        topPannel.add(tutorialButton);
+
+        statsButton = new JButton("Statistics");
+        statsButton.setFont(new Font("Helvetica", Font.BOLD, 16));
+        statsButton.setFocusable(false);
+        statsButton.setBackground(backroundCol);
+        statsButton.setForeground(Color.WHITE);
+        statsButton.setPreferredSize(new Dimension(100, 30));
+        statsButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        topPannel.add(statsButton);
+
+        gamePanel.add(topPannel, BorderLayout.NORTH);
 
         // Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
@@ -81,7 +122,7 @@ public class View extends JFrame implements ModelListener {
             gridPanel.add(rowPanel);
         }
 
-        add(gridPanel, BorderLayout.CENTER);
+        gamePanel.add(gridPanel, BorderLayout.CENTER);
 
         // Bottom Panel for Keyboard 
         JPanel keyboardPanel = new JPanel();
@@ -130,9 +171,55 @@ public class View extends JFrame implements ModelListener {
             keyboardPanel.add(rowPanel);
         }
 
-        add(keyboardPanel, BorderLayout.SOUTH);
+        gamePanel.add(keyboardPanel, BorderLayout.SOUTH);
+
+        // Second panel (Tutorial)
+        JPanel tutorialPanel = new JPanel(new BorderLayout());
+
+        // Top panel for How-to-Play
+        JPanel topPannel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        topPannel2.setBackground(backroundCol);
+        topPannel2.setBorder(BorderFactory.createLineBorder(borderCol));
+
+        closeButton = new JButton("X");
+        closeButton.setPreferredSize(new Dimension(50, 50));
+        closeButton.setFont(new Font("Helvetica", Font.BOLD, 16));
+        closeButton.setFocusable(false);
+        closeButton.setBackground(backroundCol);
+        closeButton.setForeground(Color.WHITE);
+        closeButton.setBorderPainted(false);
+        topPannel2.add(closeButton);
+        tutorialPanel.add(topPannel2, BorderLayout.NORTH);
+
+        // Third panel (Stats)
+        JPanel statsPanel = new JPanel(new BorderLayout());
+
+        // Top panel for Stats
+        JPanel topPannel3 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        topPannel3.setBackground(backroundCol);
+        topPannel3.setBorder(BorderFactory.createLineBorder(borderCol));
+
+        closeButton2 = new JButton("X");
+        closeButton2.setPreferredSize(new Dimension(50, 50));
+        closeButton2.setFont(new Font("Helvetica", Font.BOLD, 16));
+        closeButton2.setFocusable(false);
+        closeButton2.setBackground(backroundCol);
+        closeButton2.setForeground(Color.WHITE);
+        closeButton2.setBorderPainted(false);
+        topPannel3.add(closeButton2);
+        statsPanel.add(topPannel3, BorderLayout.NORTH);
+
+        //Add panels to cardPanel
+        cardPanel.add(tutorialPanel, "TUTORIAL");
+        cardPanel.add(gamePanel, "GAME");
+        cardPanel.add(statsPanel, "STATS");
+        add(cardPanel);
 
         setVisible(true);
+    }
+
+    public void showCard(String name) {
+        cardLayout.show(cardPanel, name);
     }
 
     public void updateTileText() {
@@ -200,6 +287,23 @@ public class View extends JFrame implements ModelListener {
         if (key != null) {
             key.addActionListener(listener);
         }
+    }
+
+    public void registerTutorialButtonListener(ActionListener listener) {
+        JButton key = tutorialButton;
+        key.addActionListener(listener);
+    }
+
+    public void registerCloseButtonListener(ActionListener listener) {
+        JButton key = closeButton;
+        key.addActionListener(listener);
+        key = closeButton2;
+        key.addActionListener(listener);
+    }
+
+    public void registerStatsButtonListener(ActionListener listener) {
+        JButton key = statsButton;
+        key.addActionListener(listener);
     }
 
     @Override

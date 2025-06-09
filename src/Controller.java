@@ -80,6 +80,27 @@ public class Controller implements Game {
                 }
             }
         });
+
+        view.registerTutorialButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.showCard("TUTORIAL");
+            }
+        });
+        
+        view.registerCloseButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.showCard("GAME");
+            }
+        });
+        
+        view.registerStatsButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.showCard("STATS");
+            }
+        });
     }
 
     public String getUserInput(String prompt) {
