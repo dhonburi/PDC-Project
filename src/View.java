@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,10 +36,15 @@ public class View extends JFrame implements ModelListener {
     private JLabel[][] tiles;
     public String input;
     private int attempts;
+    private HashMap<Character, JButton> keyButtons = new HashMap<>();
+    private HashMap<Character, Integer> keyColours = new HashMap<>();
 
     Color backroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
     Color keysCol = new Color(129, 131, 132);
+    Color green = new Color(106, 170, 100);
+    Color yellow = new Color(201, 180, 88);
+    Color gray = new Color(58, 58, 60);
 
     public View() {
 
@@ -158,6 +164,8 @@ public class View extends JFrame implements ModelListener {
                         key = new JButton(String.valueOf(c));
                         key.setFont(new Font("Helvetica", Font.BOLD, 22));
                         key.setPreferredSize(new Dimension(45, 60));
+                        keyButtons.put(c, key);
+                        keyColours.put(c, 0);
                         break;
                 }
                 key.setFocusable(false);
@@ -184,22 +192,40 @@ public class View extends JFrame implements ModelListener {
 
     public void feedbackRow(String feedback, int attempt) {
         for (int i = 0; i < 5; i++) {
+            char c = Character.toUpperCase(input.charAt(i));
             switch (feedback.charAt(i)) {
                 case 'V':
-                    setTile(attempt - 1, i, Color.GREEN);
+                    setTile(attempt - 1, i, green);
+                    setKeyColor(input.charAt(i), green);
+                    keyColours.put(c, 3);
                     break;
                 case '?':
-                    setTile(attempt - 1, i, Color.YELLOW);
+                    setTile(attempt - 1, i, yellow);
+                    if (keyColours.get(c) <= 1) { // default 0, grey 1, yellow 2, green 3.
+                        setKeyColor(input.charAt(i), yellow);
+                        keyColours.put(c, 2);
+                    }
                     break;
                 case 'X':
-                    setTile(attempt - 1, i, Color.GRAY);
+                    setTile(attempt - 1, i, gray);
+                    if (keyColours.get(c) == 0) {
+                        setKeyColor(input.charAt(i), gray);
+                        keyColours.put(c, 1);
+                    }
                     break;
                 default:
-                    setTile(attempt - 1, i, Color.RED);
+                    setTile(attempt - 1, i, Color.RED); //only if error
                     break;
             }
         }
         inputField.setText("");
+    }
+
+    public void setKeyColor(char c, Color background) {
+        JButton key = keyButtons.get(Character.toUpperCase(c));
+        if (key != null) {
+            key.setBackground(background);
+        }
     }
 
     public void addSubmitListener(java.awt.event.ActionListener listener) {
