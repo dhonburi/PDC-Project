@@ -15,20 +15,31 @@ public class Controller implements Game {
 
     private Model model;
     private View view;
-    
+
     private String latestInput = "";
     private boolean inputReady = false;
-    
+
     private String feedback;
     private int attempt;
 
     public Controller(Model model, View view) {
         this.model = model;
         this.view = view;
-        
+
         model.addListener(view);
 
         view.submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                latestInput = view.inputField.getText().trim().toLowerCase();
+                inputReady = true;
+                synchronized (Controller.this) {
+                    Controller.this.notify();
+                }
+            }
+        });
+
+        this.view.addEnterListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 latestInput = view.inputField.getText().trim().toLowerCase();
@@ -79,7 +90,7 @@ public class Controller implements Game {
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
                     }
-                    System.out.println("\n" + model.getGuessList(attempt - 1)+ "\n" + feedback + "\n");
+                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
                 }
                 continue;
             }
@@ -120,7 +131,7 @@ public class Controller implements Game {
                 return;
             } else {
                 model.addGuessList(guess);
-                
+
                 feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
                 System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
             }
@@ -130,10 +141,9 @@ public class Controller implements Game {
         model.saveStats(7);
         model.endStreak();
         gameOver();
-        
-        
+
     }
-    
+
     public void gameOver() {
         try {
             Thread.sleep(2000);
@@ -160,7 +170,7 @@ public class Controller implements Game {
             }
         }
     }
-    
+
     @Override
     public void readStats() {
         model.updateStats();

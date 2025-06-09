@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -58,6 +60,16 @@ public class View extends JFrame implements ModelListener {
         // Top panel for input (temporary while keyboards not implemented)
         JPanel inputPanel = new JPanel();
         inputField = new JTextField(5);
+        
+
+        // Always keep focus
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                inputField.requestFocusInWindow();
+            }
+        });
+
         inputField.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
@@ -230,6 +242,10 @@ public class View extends JFrame implements ModelListener {
 
     public void addSubmitListener(java.awt.event.ActionListener listener) {
         submitButton.addActionListener(listener);
+    }
+
+    public void addEnterListener(ActionListener listener) {
+        inputField.addActionListener(listener);
     }
 
     @Override
