@@ -7,13 +7,16 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.List;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -46,6 +49,12 @@ public class View extends JFrame implements ModelListener {
     private String currentWord;
     private Thread currentThread;
 
+    private int gamesPlayed;
+    private int winPercent;
+    private int winStreak;
+    private int maxStreak;
+    private HashMap<Integer, Integer> distributions = new HashMap<>();
+
     private JButton tutorialButton;
     private JButton statsButton;
     private JButton closeButton;
@@ -64,7 +73,6 @@ public class View extends JFrame implements ModelListener {
     private CardLayout cardLayout;
 
     public View() {
-
         // Basic JFrame setup
         setTitle("Wordle");
         setSize(600, 700);
@@ -231,13 +239,174 @@ public class View extends JFrame implements ModelListener {
         closeButton2.setBorderPainted(false);
         statsTopPannel.add(closeButton2);
         statsPanel.add(statsTopPannel, BorderLayout.NORTH);
-        
-        
+
+        // Center Panel for Stats
+        JPanel statsCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        statsCenterPanel.setBackground(backroundCol);
+
+        // Stats Title Panel
+        JPanel statsTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        statsTitlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 20, 1000));
+        statsTitlePanel.setBackground(backroundCol);
+        JLabel statsTitle = new JLabel("Statistics");
+        statsTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
+        statsTitle.setForeground(Color.WHITE);
+        statsTitlePanel.add(statsTitle, BorderLayout.CENTER);
+        statsCenterPanel.add(statsTitlePanel, BorderLayout.CENTER);
+
+        // Inner panel to create margin
+        JPanel statsInnerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
+        statsInnerPanel.setBackground(backroundCol);
+
+        // Panel for played games stat
+        JPanel playedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        playedPanel.setPreferredSize(new Dimension(100, 100));
+        playedPanel.setBackground(backroundCol);
+
+        JLabel gamesPlayedNumber = new JLabel("172");
+        gamesPlayedNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
+        gamesPlayedNumber.setForeground(Color.WHITE);
+        gamesPlayedNumber.setPreferredSize(new Dimension(gamesPlayedNumber.getPreferredSize().width, 60));
+        playedPanel.add(gamesPlayedNumber, BorderLayout.CENTER);
+
+        JPanel breakLine = new JPanel();
+        breakLine.setPreferredSize(new Dimension(9999, 0));
+        breakLine.setOpaque(false);
+        playedPanel.add(breakLine);
+
+        JLabel gamesPlayedTitle = new JLabel("Played");
+        gamesPlayedTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        gamesPlayedTitle.setForeground(Color.WHITE);
+        playedPanel.add(gamesPlayedTitle, BorderLayout.CENTER);
+
+        statsInnerPanel.add(playedPanel, BorderLayout.CENTER);
+
+        // Panel for win percentage stat
+        JPanel percentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        percentPanel.setPreferredSize(new Dimension(100, 100));
+        percentPanel.setBackground(backroundCol);
+
+        JLabel percentNumber = new JLabel("98");
+        percentNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
+        percentNumber.setForeground(Color.WHITE);
+        percentNumber.setPreferredSize(new Dimension(percentNumber.getPreferredSize().width, 60));
+        percentPanel.add(percentNumber, BorderLayout.CENTER);
+
+        JPanel breakLine2 = new JPanel();
+        breakLine2.setPreferredSize(new Dimension(9999, 0));
+        breakLine2.setOpaque(false);
+        percentPanel.add(breakLine2);
+
+        JLabel percentTitle = new JLabel("Win %");
+        percentTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        percentTitle.setForeground(Color.WHITE);
+        percentPanel.add(percentTitle, BorderLayout.CENTER);
+
+        statsInnerPanel.add(percentPanel, BorderLayout.CENTER);
+
+        // Panel for current streak stat
+        JPanel streakPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        streakPanel.setPreferredSize(new Dimension(100, 100));
+        streakPanel.setBackground(backroundCol);
+
+        JLabel streakNumber = new JLabel("0");
+        streakNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
+        streakNumber.setForeground(Color.WHITE);
+        streakNumber.setPreferredSize(new Dimension(streakNumber.getPreferredSize().width, 60));
+        streakPanel.add(streakNumber, BorderLayout.CENTER);
+
+        JPanel breakLine3 = new JPanel();
+        breakLine3.setPreferredSize(new Dimension(9999, 0));
+        breakLine3.setOpaque(false);
+        streakPanel.add(breakLine3);
+
+        JLabel streakTitle = new JLabel("<html><center>Current<br>Streak</center></html>");
+        streakTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        streakTitle.setForeground(Color.WHITE);
+        streakPanel.add(streakTitle, BorderLayout.CENTER);
+
+        statsInnerPanel.add(streakPanel, BorderLayout.CENTER);
+
+        // Panel for maximum streak stat
+        JPanel maxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        maxPanel.setPreferredSize(new Dimension(100, 100));
+        maxPanel.setBackground(backroundCol);
+
+        JLabel maxNumber = new JLabel("11");
+        maxNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
+        maxNumber.setForeground(Color.WHITE);
+        maxNumber.setPreferredSize(new Dimension(maxNumber.getPreferredSize().width, 60));
+        maxPanel.add(maxNumber, BorderLayout.CENTER);
+
+        JPanel breakLine4 = new JPanel();
+        breakLine4.setPreferredSize(new Dimension(9999, 0));
+        breakLine4.setOpaque(false);
+        maxPanel.add(breakLine4);
+
+        JLabel maxTitle = new JLabel("<html><center>Max<br>Streak</center></html>");
+        maxTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
+        maxTitle.setForeground(Color.WHITE);
+        maxPanel.add(maxTitle, BorderLayout.CENTER);
+
+        statsInnerPanel.add(maxPanel, BorderLayout.CENTER);
+
+        statsCenterPanel.add(statsInnerPanel, BorderLayout.CENTER);
+
+        // Guess Distribution panel with margin
+        JPanel guessDistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        guessDistPanel.setPreferredSize(new Dimension(500, 1000));
+        guessDistPanel.setBackground(backroundCol);
+
+        // Title Panel
+        JPanel guessDistTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 20));
+        guessDistTitlePanel.setBackground(backroundCol);
+        JLabel guessDistTitle = new JLabel("GUESS DISTRIBUTION");
+        guessDistTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
+        guessDistTitle.setForeground(Color.WHITE);
+        guessDistTitlePanel.add(guessDistTitle, BorderLayout.CENTER);
+        guessDistPanel.add(guessDistTitlePanel, BorderLayout.CENTER);
+
+        JPanel breakLine5 = new JPanel();
+        breakLine5.setPreferredSize(new Dimension(9999, 0));
+        breakLine5.setOpaque(false);
+        guessDistPanel.add(breakLine5);
+
+        // Distribution  Panel
+        for (int i = 1; i < 7; i++) {
+            JPanel DistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+            DistPanel.setBackground(backroundCol);
+            JLabel guessDistTitleNum = new JLabel(Integer.toString(i));
+            guessDistTitleNum.setFont(new Font("Helvetica", Font.BOLD, 16));
+            guessDistTitleNum.setForeground(Color.WHITE);
+            DistPanel.add(guessDistTitleNum, BorderLayout.CENTER);
+
+            JPanel DistBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+            DistBar.setPreferredSize(new Dimension(25 * 10 + 30, 20));
+            DistBar.setBackground(gray);
+
+            JLabel guessDistNumber = new JLabel("25");
+            guessDistNumber.setFont(new Font("Helvetica", Font.BOLD, 16));
+            guessDistNumber.setForeground(Color.WHITE);
+            DistBar.add(guessDistNumber, BorderLayout.CENTER);
+
+            DistPanel.add(DistBar, BorderLayout.CENTER);
+
+            JPanel breakLineDist = new JPanel();
+            breakLineDist.setPreferredSize(new Dimension(9999, 0));
+            breakLineDist.setOpaque(false);
+            DistPanel.add(breakLineDist);
+
+            guessDistPanel.add(DistPanel, BorderLayout.CENTER);
+        }
+
+        statsCenterPanel.add(guessDistPanel, BorderLayout.CENTER);
+        statsPanel.add(statsCenterPanel, BorderLayout.CENTER);
+
         //Add panels to cardPanel
         cardPanel.add(statsPanel, "STATS");
         cardPanel.add(tutorialPanel, "TUTORIAL");
         cardPanel.add(gamePanel, "GAME");
-        
+
         add(cardPanel);
 
         setVisible(true);
@@ -386,6 +555,20 @@ public class View extends JFrame implements ModelListener {
     @Override
     public void onModelChanged(String word) {
         currentWord = word;
+    }
+
+    @Override
+    public void onStats(int played, int percent, int streak, int max, int dist1, int dist2, int dist3, int dist4, int dist5, int dist6) {
+        gamesPlayed = played;
+        winPercent = percent;
+        winStreak = streak;
+        maxStreak = max;
+        distributions.put(1, dist1);
+        distributions.put(2, dist2);
+        distributions.put(3, dist3);
+        distributions.put(4, dist4);
+        distributions.put(5, dist5);
+        distributions.put(6, dist6);
     }
 
 }

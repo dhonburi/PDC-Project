@@ -9,5 +9,6 @@
  */
 public interface ModelListener {
     void onModelChanged(String word);
+    void onStats(int played, int percent, int streak, int max, int dist1, int dist2, int dist3, int dist4, int dist5, int dist6);
     void onFeedback(String feedback, int attempt);
 }

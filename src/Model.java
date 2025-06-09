@@ -29,10 +29,7 @@ public class Model {
         this.streakCounter = streakCounter;
     }
 
-    public String getRandomWord() {
-        return wordProvider.getRandomWord();
-    }
-
+    // GuessList Methods
     public void clearGuessList() {
         GUESSED.clear();
     }
@@ -45,6 +42,16 @@ public class Model {
         GUESSED.add(guess);
     }
 
+    public String getGuessList(int index) {
+        return GUESSED.get(index);
+    }
+
+    // GameLogic Methods
+    public String getRandomWord() {
+        return wordProvider.getRandomWord();
+    }
+
+    // Word Check Methods
     public boolean isValidGuessWord(String guess) {
         return WordValidator.isValidGuessWord(guess);
     }
@@ -53,10 +60,7 @@ public class Model {
         return guess.length() == 5;
     }
 
-    public String getGuessList(int index) {
-        return GUESSED.get(index);
-    }
-
+    // End of Game Methods
     public void saveStats(int stats) {
         statSaver.saveStats(stats);
     }
@@ -75,6 +79,7 @@ public class Model {
         notifyListenerFeedback();
     }
 
+    // Get Feedback (check grey, yellow, green) Method
     public String getFeedback(String targetWord, String guess, int attempts) {
         feedback = "";
         attempt = attempts;
@@ -114,6 +119,7 @@ public class Model {
         return feedback;
     }
 
+    // Stats Methods
     public void updateStats() {
         statSaver.readFile();
     }
@@ -138,6 +144,7 @@ public class Model {
         return statSaver.getGuessDist(attempts);
     }
 
+    // Typing Methods
     public void addLetter(char c) {
         if (currentWord.length() < 5) {
             currentWord.append(c);
@@ -155,11 +162,12 @@ public class Model {
     public String getCurrentWord() {
         return currentWord.toString();
     }
-    
+
     public void clearCurrentWord() {
         currentWord.setLength(0);
     }
-    
+
+    // ModelListener Methods for View Class
     public void addListener(ModelListener listener) {
         this.listener = listener;
     }
@@ -169,10 +177,16 @@ public class Model {
             listener.onFeedback(feedback, attempt);
         }
     }
-    
+
     private void notifyListener() {
         if (listener != null) {
             listener.onModelChanged(currentWord.toString());
+        }
+    }
+
+    private void notifyListenerStats() {
+        if (listener != null) {
+            
         }
     }
 }
