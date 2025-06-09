@@ -15,11 +15,11 @@ public class WordleMain {
         ConsoleIO consoleIO = new ConsoleIO();
         StatSaver statSaver = new StatSaver();
         StreakCounter streakCounter = new StreakCounter();
-        WordleGame game = new WordleGame(wordProvider, wordValidator, consoleIO, statSaver, streakCounter);
+        Model game = new Model(wordProvider, wordValidator, consoleIO, statSaver, streakCounter);
         View view = new View();
         Controller controller = new Controller(game, view);
 
-        game.startGame();
+        controller.startGame();
         
     }
 }

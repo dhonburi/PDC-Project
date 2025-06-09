@@ -26,7 +26,7 @@ public class View extends JFrame implements ModelListener {
 
     private final int ROWS = 6;
     private final int COLS = 5;
-    private JTextField inputField;
+    public JTextField inputField;
     public JButton submitButton;
     private JPanel gridPanel;
 
