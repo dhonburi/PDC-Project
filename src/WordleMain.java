@@ -12,10 +12,9 @@ public class WordleMain {
     public static void main(String[] args) {
         WordProvider wordProvider = new WordProvider();
         WordValidator wordValidator = new WordValidator();
-        ConsoleIO consoleIO = new ConsoleIO();
         StatSaver statSaver = new StatSaver();
         StreakCounter streakCounter = new StreakCounter();
-        Model game = new Model(wordProvider, wordValidator, consoleIO, statSaver, streakCounter);
+        Model game = new Model(wordProvider, wordValidator, statSaver, streakCounter);
         View view = new View();
         Controller controller = new Controller(game, view);
 

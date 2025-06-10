@@ -29,23 +29,26 @@ public class Controller implements Game {
         this.view = view;
 
         model.addListener(view);
+        model.updateStats();
 
         view.registerKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (Character.isLetter(c)) {
-                    c = Character.toUpperCase(c);
-                    model.addLetter(c);
-                    view.updateTileText();
-                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    model.removeLastLetter();
-                    view.updateTileText();
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    latestInput = model.getCurrentWord();
-                    inputReady = true;
-                    synchronized (Controller.this) {
-                        Controller.this.notify();
+                if (view.typingEnabled) {
+                    char c = e.getKeyChar();
+                    if (Character.isLetter(c)) {
+                        c = Character.toUpperCase(c);
+                        model.addLetter(c);
+                        view.updateTileText();
+                    } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                        model.removeLastLetter();
+                        view.updateTileText();
+                    } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        latestInput = model.getCurrentWord();
+                        inputReady = true;
+                        synchronized (Controller.this) {
+                            Controller.this.notify();
+                        }
                     }
                 }
             }
@@ -56,8 +59,10 @@ public class Controller implements Game {
             view.registerKeyButtonListener(c, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    model.addLetter(keyChar);
-                    view.updateTileText();
+                    if (view.typingEnabled) {
+                        model.addLetter(keyChar);
+                        view.updateTileText();
+                    }
                 }
             });
         }
@@ -65,25 +70,49 @@ public class Controller implements Game {
         view.registerKeyButtonListener('-', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.removeLastLetter();
-                view.updateTileText();
+                if (view.typingEnabled) {
+                    model.removeLastLetter();
+                    view.updateTileText();
+                }
             }
         });
 
         view.registerKeyButtonListener('+', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                latestInput = model.getCurrentWord();
-                inputReady = true;
-                synchronized (Controller.this) {
-                    Controller.this.notify();
+                if (view.typingEnabled) {
+                    latestInput = model.getCurrentWord();
+                    inputReady = true;
+                    synchronized (Controller.this) {
+                        Controller.this.notify();
+                    }
                 }
+            }
+        });
+
+        view.registerTutorialButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.showCard("TUTORIAL");
+            }
+        });
+
+        view.registerCloseButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                view.showCard("GAME");
+            }
+        });
+
+        view.registerStatsButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                readStats();
             }
         });
     }
 
-    public String getUserInput(String prompt) {
-        System.out.print(prompt);
+    public String getUserInput() {
         inputReady = false;
         try {
             synchronized (this) {
@@ -109,53 +138,33 @@ public class Controller implements Game {
         System.out.println("X: Grey (Letter is not in the word in any spot.)");
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
 
+        Thread currentThread;
+
         for (attempt = 1; attempt <= maxTries; attempt++) {
-            String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
+            String guess = getUserInput().toLowerCase();
 
             if (!model.isFiveChars(guess)) {
-                System.out.println("Invalid guess! Must be exactly 5 letters.");
+                view.updatePopUp("Not enough letters");
                 attempt--;
-                if (attempt > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-                }
                 continue;
+            } else {
             }
 
             if (!WordValidator.isValidGuessWord(guess)) {
-                System.out.println("Word not in list. Try another.");
+                view.updatePopUp("Not in word list");
                 attempt--;
-                if (attempt > 0) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                    System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-                }
                 continue;
             }
 
             if (model.GuessListContains(guess)) {
-                System.out.println("Word already guessed. Try another.");
+                view.updatePopUp("Word already guessed");
                 attempt--;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
-
                 continue;
             }
 
             if (guess.equals(targetWord)) {
                 model.win(attempt);
-                System.out.println(" Congratulations! You guessed the word: " + targetWord + "\n");
+                view.updatePopUp("Congratulations! You win!");
                 model.saveStats(attempt);
                 model.addStreak();
                 gameOver();
@@ -165,11 +174,10 @@ public class Controller implements Game {
 
                 feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
                 model.clearCurrentWord();
-                System.out.println("\n" + model.getGuessList(attempt - 1) + "\n" + feedback + "\n");
             }
         }
 
-        System.out.println("Game over! The correct word was: " + targetWord + "\n");
+        view.holdPopUp(targetWord.toUpperCase());
         model.saveStats(7);
         model.endStreak();
         gameOver();
@@ -178,16 +186,16 @@ public class Controller implements Game {
 
     public void gameOver() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2100);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-
+        
         readStats();
-
+        
         String input = "";
         while (!input.equals("n")) {
-            input = (getUserInput("Do you want to play again (Y) or end system (N)?"));
+            input = getUserInput();
             if (input.length() > 1) {
                 System.out.println("Invalid input. Only input one character.");
             } else if (input.charAt(0) == 'y') {
@@ -206,20 +214,7 @@ public class Controller implements Game {
     @Override
     public void readStats() {
         model.updateStats();
-        System.out.println("~~Statistics:~~\n");
-        System.out.println("Games Played: " + model.getGamesPlayed());
-        System.out.println("Win %: " + model.getWinPercentage());
-        System.out.println("Current Streak: " + model.getStreak());
-        System.out.println("Max Streak: " + model.getMaxStreak());
-        System.out.println("\nGuess Distribution:");
-        for (int i = 1; i < 7; i++) {
-            String output = i + ": ";
-            for (int j = 0; j < model.getGuessDist(i); j++) {
-                output += "|";
-            }
-            output += model.getGuessDist(i);
-            System.out.println(output);
-        }
-        System.out.println("");
+        view.updateStats();
+        view.showCard("STATS");
     }
 }
