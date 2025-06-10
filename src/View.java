@@ -6,17 +6,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.List;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -24,12 +16,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -43,7 +32,7 @@ public class View extends JFrame implements ModelListener {
 
     private final int ROWS = 6;
     private final int COLS = 5;
-    private JLabel[][] tiles;
+
     public String input;
     private int attempts;
     private String currentWord;
@@ -58,13 +47,17 @@ public class View extends JFrame implements ModelListener {
     private HashMap<Integer, JPanel> distBar = new HashMap<>();
     private HashMap<Integer, JLabel> distLabel = new HashMap<>();
 
+    // Keyboard and tile JLabels/JButotn Hashmaps
+    private JLabel[][] tiles;
     private HashMap<Character, JButton> keyButtons = new HashMap<>();
     private HashMap<Character, Integer> keyColours = new HashMap<>();
 
+    // GUI Components
     private JButton tutorialButton;
     private JButton statsButton;
     private JButton closeButton;
     private JButton closeButton2;
+    private JButton replayButton;
     private JLabel popUplabel;
 
     private JLabel gamesPlayedNumber;
@@ -128,6 +121,15 @@ public class View extends JFrame implements ModelListener {
         statsButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
         topPannel.add(statsButton);
 
+        replayButton = new JButton("Replay");
+        replayButton.setFont(new Font("Helvetica", Font.BOLD, 16));
+        replayButton.setFocusable(false);
+        replayButton.setBackground(backroundCol);
+        replayButton.setForeground(Color.WHITE);
+        replayButton.setPreferredSize(new Dimension(70, 30));
+        replayButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        topPannel.add(replayButton);
+
         gamePanel.add(topPannel, BorderLayout.NORTH);
 
         // Center panel for Announcement / Label
@@ -158,7 +160,7 @@ public class View extends JFrame implements ModelListener {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
             rowPanel.setBackground(backroundCol);
             for (int j = 0; j < COLS; j++) {
-                JLabel tile = new JLabel("", SwingConstants.CENTER);
+                JLabel tile = new JLabel(" ", SwingConstants.CENTER);
                 tile.setOpaque(true);
                 tile.setFont(new Font("Helvetica", Font.BOLD, 24));
                 tile.setPreferredSize(new Dimension(50, 50));
@@ -431,7 +433,6 @@ public class View extends JFrame implements ModelListener {
         cardPanel.add(gamePanel, "GAME");
         cardPanel.add(statsPanel, "STATS");
         cardPanel.add(tutorialPanel, "TUTORIAL");
-        
 
         add(cardPanel);
 
@@ -448,7 +449,7 @@ public class View extends JFrame implements ModelListener {
         }
     }
 
-    // Tile & Keyboard Methods
+    // Tile Methods
     public void updateTileText() {
         input = currentWord;
         for (int i = 0; i < input.length(); i++) {
@@ -505,10 +506,26 @@ public class View extends JFrame implements ModelListener {
         typingEnabled = true;
     }
 
+    public void resetBoard() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                setTile(i, j, backroundCol);
+                setTile(i, j, ' ');
+            }
+        }
+    }
+
+    // Keyboard Methods
     public void setKeyColor(char c, Color background) {
         JButton key = keyButtons.get(Character.toUpperCase(c));
         if (key != null) {
             key.setBackground(background);
+        }
+    }
+
+    public void resetKeys() {
+        for (char c = 'A'; c <= 'Z'; c++) {
+            setKeyColor(c, keysCol);
         }
     }
 
@@ -541,7 +558,11 @@ public class View extends JFrame implements ModelListener {
         key.addActionListener(listener);
     }
 
-    
+    public void registerReplayButtonListener(ActionListener listener) {
+        JButton key = replayButton;
+        key.addActionListener(listener);
+    }
+
     // Pop up Methods
     public void updatePopUp(String message) {
         popUplabel.setText(message);
@@ -583,14 +604,18 @@ public class View extends JFrame implements ModelListener {
 
         currentThread.start();
     }
-    
-    // For the final answer when incorrect
-    public void holdPopUp(String message) {
+
+    public void holdPopUp(String message) { // For the final answer when incorrect
         popUplabel.setText(message);
         popUplabel.setBackground(popUpCol);
         popUplabel.setForeground(Color.BLACK);
     }
-    
+
+    public void hidePopUp() { // For when resetting game
+        popUplabel.setBackground(backroundCol);
+        popUplabel.setForeground(backroundCol);
+    }
+
     // Stats Page Methods
     public void updateStats() {
         gamesPlayedNumber.setText(Integer.toString(gamesPlayed));
@@ -614,7 +639,7 @@ public class View extends JFrame implements ModelListener {
                 largestDist = distributions.get(i);
             }
         }
-        
+
         int finalMultiplier = largestDist / 3;
 
         // Start a new animation thread (copied the popup label's code)
@@ -656,6 +681,11 @@ public class View extends JFrame implements ModelListener {
         });
 
         currentThread.start();
+    }
+
+    // reset attempts
+    public void resetAttempts() {
+        attempts = 0;
     }
 
     // Model Listener Methods
