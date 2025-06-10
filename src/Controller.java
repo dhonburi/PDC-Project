@@ -107,15 +107,12 @@ public class Controller implements Game {
         view.registerStatsButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.updateStats();
-                view.updateStats();
-                view.showCard("STATS");
+                readStats();
             }
         });
     }
 
-    public String getUserInput(String prompt) {
-        System.out.print(prompt);
+    public String getUserInput() {
         inputReady = false;
         try {
             synchronized (this) {
@@ -144,7 +141,7 @@ public class Controller implements Game {
         Thread currentThread;
 
         for (attempt = 1; attempt <= maxTries; attempt++) {
-            String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
+            String guess = getUserInput().toLowerCase();
 
             if (!model.isFiveChars(guess)) {
                 view.updatePopUp("Must be exactly 5 letters.");
@@ -180,7 +177,7 @@ public class Controller implements Game {
             }
         }
 
-        view.updatePopUp(targetWord.toUpperCase());
+        view.holdPopUp(targetWord.toUpperCase());
         model.saveStats(7);
         model.endStreak();
         gameOver();
@@ -189,16 +186,16 @@ public class Controller implements Game {
 
     public void gameOver() {
         try {
-            Thread.sleep(2000);
+            Thread.sleep(2100);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-
+        
         readStats();
-
+        
         String input = "";
         while (!input.equals("n")) {
-            input = (getUserInput("Do you want to play again (Y) or end system (N)?"));
+            input = getUserInput();
             if (input.length() > 1) {
                 System.out.println("Invalid input. Only input one character.");
             } else if (input.charAt(0) == 'y') {
@@ -217,20 +214,7 @@ public class Controller implements Game {
     @Override
     public void readStats() {
         model.updateStats();
-        System.out.println("~~Statistics:~~\n");
-        System.out.println("Games Played: " + model.getGamesPlayed());
-        System.out.println("Win %: " + model.getWinPercentage());
-        System.out.println("Current Streak: " + model.getStreak());
-        System.out.println("Max Streak: " + model.getMaxStreak());
-        System.out.println("\nGuess Distribution:");
-        for (int i = 1; i < 7; i++) {
-            String output = i + ": ";
-            for (int j = 0; j < model.getGuessDist(i); j++) {
-                output += "|";
-            }
-            output += model.getGuessDist(i);
-            System.out.println(output);
-        }
-        System.out.println("");
+        view.updateStats();
+        view.showCard("STATS");
     }
 }

@@ -541,6 +541,7 @@ public class View extends JFrame implements ModelListener {
         key.addActionListener(listener);
     }
 
+    
     // Pop up Methods
     public void updatePopUp(String message) {
         popUplabel.setText(message);
@@ -582,7 +583,14 @@ public class View extends JFrame implements ModelListener {
 
         currentThread.start();
     }
-
+    
+    // For the final answer when incorrect
+    public void holdPopUp(String message) {
+        popUplabel.setText(message);
+        popUplabel.setBackground(popUpCol);
+        popUplabel.setForeground(Color.BLACK);
+    }
+    
     // Stats Page Methods
     public void updateStats() {
         gamesPlayedNumber.setText(Integer.toString(gamesPlayed));
