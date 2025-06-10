@@ -2,6 +2,7 @@
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -102,7 +103,7 @@ public class View extends JFrame implements ModelListener {
 
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
-        // Top panel for How-to-Play & Stats
+        // Top panel for How-to-Play & Stats Buttons
         topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         topPannel.setBackground(backGroundCol);
         topPannel.setBorder(BorderFactory.createLineBorder(borderCol));
@@ -114,6 +115,7 @@ public class View extends JFrame implements ModelListener {
         tutorialButton.setForeground(Color.WHITE);
         tutorialButton.setPreferredSize(new Dimension(120, 30));
         tutorialButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        tutorialButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         topPannel.add(tutorialButton);
 
         statsButton = new JButton("Statistics");
@@ -123,6 +125,7 @@ public class View extends JFrame implements ModelListener {
         statsButton.setForeground(Color.WHITE);
         statsButton.setPreferredSize(new Dimension(100, 30));
         statsButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        statsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         topPannel.add(statsButton);
 
         replayButton = new JButton("Replay");
@@ -132,6 +135,7 @@ public class View extends JFrame implements ModelListener {
         replayButton.setForeground(Color.WHITE);
         replayButton.setPreferredSize(new Dimension(70, 30));
         replayButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        replayButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         gamePanel.add(topPannel, BorderLayout.NORTH);
 
@@ -221,6 +225,7 @@ public class View extends JFrame implements ModelListener {
                 key.setBackground(keysCol);
                 key.setForeground(Color.WHITE);
                 key.setBorder(BorderFactory.createLineBorder(borderCol));
+                key.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 rowPanel.add(key);
             }
             keyboardPanel.add(rowPanel);
@@ -242,8 +247,95 @@ public class View extends JFrame implements ModelListener {
         closeButton.setBackground(backGroundCol);
         closeButton.setForeground(Color.WHITE);
         closeButton.setBorderPainted(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         tutorialTopPannel.add(closeButton);
         tutorialPanel.add(tutorialTopPannel, BorderLayout.NORTH);
+
+        // Center Panel for Tutorial
+        JPanel tutorialCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        tutorialCenterPanel.setBackground(backGroundCol);
+
+        // Tutorial Title Label
+        JLabel tutorialTitle = new JLabel("How to Play");
+        tutorialTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
+        tutorialTitle.setForeground(Color.WHITE);
+        tutorialTitle.setBorder(BorderFactory.createEmptyBorder(-10, 0, 5, 1000));
+        tutorialCenterPanel.add(tutorialTitle, BorderLayout.CENTER);
+
+        // Subtitle Label
+        JLabel tutorialSubtitle = new JLabel("Guess the Wordle in 6 tries.");
+        tutorialSubtitle.setFont(new Font("Helvetica", Font.PLAIN, 24));
+        tutorialSubtitle.setForeground(Color.WHITE);
+        tutorialSubtitle.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 1000));
+        tutorialCenterPanel.add(tutorialSubtitle, BorderLayout.CENTER);
+
+        // Bullet Label
+        JLabel tutorialBullet = new JLabel("<html><ul><li>Each guess must be a valid 5-letter word.</li></ul></html>");
+        tutorialBullet.setFont(new Font("Helvetica", Font.PLAIN, 17));
+        tutorialBullet.setForeground(Color.WHITE);
+        tutorialBullet.setBorder(BorderFactory.createEmptyBorder(-5, -10, 0, 1000));
+        tutorialCenterPanel.add(tutorialBullet, BorderLayout.CENTER);
+
+        JLabel tutorialBullet2 = new JLabel("<html><ul><li>The color of the tiles will change to show how close your<br>guess was to the word.</li></ul></html>");
+        tutorialBullet2.setFont(new Font("Helvetica", Font.PLAIN, 17));
+        tutorialBullet2.setForeground(Color.WHITE);
+        tutorialBullet2.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
+        tutorialCenterPanel.add(tutorialBullet2, BorderLayout.CENTER);
+
+        JLabel tutorialBullet3 = new JLabel("<html><ul><li>Use either the onscreen keyboard, or use your device's<br>keyboard. Enter to sumbit guess.</li></ul></html>");
+        tutorialBullet3.setFont(new Font("Helvetica", Font.PLAIN, 17));
+        tutorialBullet3.setForeground(Color.WHITE);
+        tutorialBullet3.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
+        tutorialCenterPanel.add(tutorialBullet3, BorderLayout.CENTER);
+
+        // Examples Title
+        JLabel tutorialExamplesTitle = new JLabel("Examples");
+        tutorialExamplesTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
+        tutorialExamplesTitle.setForeground(Color.WHITE);
+        tutorialExamplesTitle.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 1000));
+        tutorialCenterPanel.add(tutorialExamplesTitle, BorderLayout.CENTER);
+
+        // Example Grid (Modified the Game Card code)
+        String[] words = {"CRANE", "ABOUT", "HOUSE"};
+        String[] caption = {"<html><b>C</b> is in the word and in the correct spot.</html>", "<html><b>B</b> is in the word but in the wrong spot.</html>", "<html><b>S</b> is not in the word in any spot.</html>"};
+        for (int i = 0; i < 3; i++) {
+            JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+            rowPanel.setBackground(backGroundCol);
+            rowPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 1000));
+            for (int j = 0; j < COLS; j++) {
+                JLabel tile = new JLabel(String.valueOf(words[i].charAt(j)), SwingConstants.CENTER);
+                tile.setOpaque(true);
+                tile.setFont(new Font("Helvetica", Font.BOLD, 28));
+                tile.setPreferredSize(new Dimension(40, 40));
+                tile.setBackground(backGroundCol);
+                if (j == 0 && i == 0) {
+                    tile.setBackground(green);
+                } else if (j == 1 && i == 1) {
+                    tile.setBackground(yellow);
+                } else if (j == 3 && i == 2) {
+                    tile.setBackground(gray);
+                }
+                tile.setForeground(Color.WHITE);
+                tile.setBorder(BorderFactory.createLineBorder(borderCol));
+                rowPanel.add(tile);
+            }
+            tutorialCenterPanel.add(rowPanel);
+
+            // Under Example Text
+            JLabel tutorialExamplesText = new JLabel(caption[i]);
+            tutorialExamplesText.setFont(new Font("Helvetica", Font.PLAIN, 17));
+            tutorialExamplesText.setForeground(Color.WHITE);
+            tutorialExamplesText.setBorder(BorderFactory.createEmptyBorder(5, 25, 10, 1000));
+            tutorialCenterPanel.add(tutorialExamplesText, BorderLayout.CENTER);
+        }
+
+        JLabel tutorialText = new JLabel("<html>Press <b>'X'</b> on the top right of the screen or the <b>'Esc'</b> key <br>to close this Tutorial Menu and start playing!</html>");
+        tutorialText.setFont(new Font("Helvetica", Font.PLAIN, 17));
+        tutorialText.setForeground(Color.WHITE);
+        tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
+        tutorialCenterPanel.add(tutorialText, BorderLayout.CENTER);
+
+        tutorialPanel.add(tutorialCenterPanel, BorderLayout.CENTER);
 
         // Third panel (Stats)
         JPanel statsPanel = new JPanel(new BorderLayout());
@@ -255,9 +347,11 @@ public class View extends JFrame implements ModelListener {
         closeButton2 = new JButton("X");
         closeButton2.setPreferredSize(new Dimension(80, 50));
         closeButton2.setFont(new Font("Helvetica", Font.PLAIN, 28));
+        closeButton2.setFocusable(false);
         closeButton2.setBackground(backGroundCol);
         closeButton2.setForeground(Color.WHITE);
         closeButton2.setBorderPainted(false);
+        closeButton2.setCursor(new Cursor(Cursor.HAND_CURSOR));
         statsTopPannel.add(closeButton2);
         statsPanel.add(statsTopPannel, BorderLayout.NORTH);
 
@@ -265,15 +359,12 @@ public class View extends JFrame implements ModelListener {
         JPanel statsCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         statsCenterPanel.setBackground(backGroundCol);
 
-        // Stats Title Panel
-        JPanel statsTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        statsTitlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 1000));
-        statsTitlePanel.setBackground(backGroundCol);
+        // Stats Title Label
         JLabel statsTitle = new JLabel("Statistics");
         statsTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
         statsTitle.setForeground(Color.WHITE);
-        statsTitlePanel.add(statsTitle, BorderLayout.CENTER);
-        statsCenterPanel.add(statsTitlePanel, BorderLayout.CENTER);
+        statsTitle.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 1000));
+        statsCenterPanel.add(statsTitle, BorderLayout.CENTER);
 
         // Inner panel to create margin
         JPanel statsInnerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
@@ -432,23 +523,24 @@ public class View extends JFrame implements ModelListener {
         ReplayPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 20));
         ReplayPanel.setPreferredSize(new Dimension(500, 200));
         ReplayPanel.setBackground(backGroundCol);
-        
+
         replayButton2 = new JButton("Play Again?");
         replayButton2.setFont(new Font("Helvetica", Font.BOLD, 16));
         replayButton2.setFocusable(false);
         replayButton2.setBackground(backGroundCol);
         replayButton2.setForeground(Color.WHITE);
         replayButton2.setPreferredSize(new Dimension(120, 60));
+        replayButton2.setCursor(new Cursor(Cursor.HAND_CURSOR));
         replayButton2.setBorder(BorderFactory.createLineBorder(borderCol));
-        
+
         statsCenterPanel.add(ReplayPanel, BorderLayout.CENTER);
 
         statsPanel.add(statsCenterPanel, BorderLayout.CENTER);
 
         //Add panels to cardPanel
+        cardPanel.add(tutorialPanel, "TUTORIAL");
         cardPanel.add(gamePanel, "GAME");
         cardPanel.add(statsPanel, "STATS");
-        cardPanel.add(tutorialPanel, "TUTORIAL");
 
         add(cardPanel);
 

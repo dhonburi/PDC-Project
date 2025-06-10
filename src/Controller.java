@@ -48,6 +48,8 @@ public class Controller implements Game {
                         synchronized (Controller.this) {
                             Controller.this.notify();
                         }
+                    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        view.showCard("GAME");
                     }
                 }
             }
