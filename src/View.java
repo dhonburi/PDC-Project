@@ -558,7 +558,7 @@ public class View extends JFrame implements ModelListener {
             try {
                 Thread.sleep(1500); // initial pause
 
-                for (int i = 248; i > 18; i--) {
+                for (int i = 248; i > 18; i -= 2) {
                     if (Thread.currentThread().isInterrupted()) {
                         return;
                     }
@@ -608,6 +608,14 @@ public class View extends JFrame implements ModelListener {
         if (currentThread != null && currentThread.isAlive()) {
             currentThread.interrupt();
         }
+        int largestDist = 0;
+        for (int i = 1; i <= 7; i++) {
+            if (largestDist < distributions.get(i)) {
+                largestDist = distributions.get(i);
+            }
+        }
+        
+        int finalMultiplier = largestDist / 3;
 
         // Start a new animation thread (copied the popup label's code)
         currentThread = new Thread(() -> {
@@ -620,7 +628,7 @@ public class View extends JFrame implements ModelListener {
                     // ChatGpt
                     double t = i / 50.0;  // progress 0 to 1
                     double easeOut = 1 - Math.pow(1 - t, 3);
-                    double multiplier = (double) (easeOut * 10);
+                    double multiplier = (double) (easeOut * finalMultiplier);
 
                     for (int j = 1; j <= 7; j++) {
                         int barNum = j;
@@ -637,7 +645,7 @@ public class View extends JFrame implements ModelListener {
 
                 SwingUtilities.invokeLater(() -> {
                     for (int i = 1; i <= 7; i++) {
-                        distBar.get(i).setPreferredSize(new Dimension(distributions.get(i) * 10 + 30, 20));
+                        distBar.get(i).setPreferredSize(new Dimension(distributions.get(i) * finalMultiplier + 30, 20));
                     }
                 });
 

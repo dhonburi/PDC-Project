@@ -144,27 +144,27 @@ public class Controller implements Game {
             String guess = getUserInput().toLowerCase();
 
             if (!model.isFiveChars(guess)) {
-                view.updatePopUp("Must be exactly 5 letters.");
+                view.updatePopUp("Not enough letters");
                 attempt--;
                 continue;
             } else {
             }
 
             if (!WordValidator.isValidGuessWord(guess)) {
-                view.updatePopUp("Word not in list.");
+                view.updatePopUp("Not in word list");
                 attempt--;
                 continue;
             }
 
             if (model.GuessListContains(guess)) {
-                view.updatePopUp("Word already guessed.");
+                view.updatePopUp("Word already guessed");
                 attempt--;
                 continue;
             }
 
             if (guess.equals(targetWord)) {
                 model.win(attempt);
-                view.updatePopUp("Congratulations! You guessed the word!");
+                view.updatePopUp("Congratulations! You win!");
                 model.saveStats(attempt);
                 model.addStreak();
                 gameOver();
