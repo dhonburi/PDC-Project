@@ -42,7 +42,7 @@ public class WordValidator implements FileInputReader{
         }
     }
     
-    static boolean isValidGuessWord(String guess) {
+    boolean isValidGuessWord(String guess) {
         return WORDS.contains(guess);
     }
 }

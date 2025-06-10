@@ -3,7 +3,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -21,8 +20,8 @@ public class Controller implements Game {
     private String latestInput = "";
     private boolean inputReady = false;
 
-    private String feedback;
     private int attempt;
+    private boolean gameInProgress;
 
     public Controller(Model model, View view) {
         this.model = model;
@@ -34,7 +33,7 @@ public class Controller implements Game {
         view.registerKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (view.typingEnabled) {
+                if (view.typingEnabled && gameInProgress) {
                     char c = e.getKeyChar();
                     if (Character.isLetter(c)) {
                         c = Character.toUpperCase(c);
@@ -49,6 +48,8 @@ public class Controller implements Game {
                         synchronized (Controller.this) {
                             Controller.this.notify();
                         }
+                    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        view.showCard("GAME");
                     }
                 }
             }
@@ -59,7 +60,7 @@ public class Controller implements Game {
             view.registerKeyButtonListener(c, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (view.typingEnabled) {
+                    if (view.typingEnabled && gameInProgress) {
                         model.addLetter(keyChar);
                         view.updateTileText();
                     }
@@ -70,7 +71,7 @@ public class Controller implements Game {
         view.registerKeyButtonListener('-', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (view.typingEnabled) {
+                if (view.typingEnabled && gameInProgress) {
                     model.removeLastLetter();
                     view.updateTileText();
                 }
@@ -80,7 +81,7 @@ public class Controller implements Game {
         view.registerKeyButtonListener('+', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (view.typingEnabled) {
+                if (view.typingEnabled && gameInProgress) {
                     latestInput = model.getCurrentWord();
                     inputReady = true;
                     synchronized (Controller.this) {
@@ -110,6 +111,21 @@ public class Controller implements Game {
                 readStats();
             }
         });
+
+        view.registerReplayButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!gameInProgress) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startGame();
+                        }
+                    }).start();
+                    view.showCard("GAME");
+                }
+            }
+        });
     }
 
     public String getUserInput() {
@@ -127,9 +143,16 @@ public class Controller implements Game {
 
     @Override
     public void startGame() {
+        gameInProgress = true;
         String targetWord = model.getRandomWord();
         int maxTries = 6;
         model.clearGuessList();
+        model.clearCurrentWord();
+        view.hideReplay();
+        view.resetAttempts();
+        view.resetBoard();
+        view.resetKeys();
+        view.hidePopUp();
         System.out.println("~~ Welcome to Wordle! ~~");
         System.out.println("Each guess must be a valid 5-letter word.\n");
         System.out.println("The symbol under the tiles will show how close your guess was to the word.");
@@ -137,8 +160,6 @@ public class Controller implements Game {
         System.out.println("?: Yellow (Letter is in the word but in the wrong spot.)");
         System.out.println("X: Grey (Letter is not in the word in any spot.)");
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
-
-        Thread currentThread;
 
         for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput().toLowerCase();
@@ -150,7 +171,7 @@ public class Controller implements Game {
             } else {
             }
 
-            if (!WordValidator.isValidGuessWord(guess)) {
+            if (!model.isValidGuessWord(guess)) {
                 view.updatePopUp("Not in word list");
                 attempt--;
                 continue;
@@ -172,7 +193,7 @@ public class Controller implements Game {
             } else {
                 model.addGuessList(guess);
 
-                feedback = model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
+                model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
                 model.clearCurrentWord();
             }
         }
@@ -185,6 +206,8 @@ public class Controller implements Game {
     }
 
     public void gameOver() {
+        gameInProgress = false;
+
         try {
             Thread.sleep(2100);
         } catch (InterruptedException ex) {
@@ -192,23 +215,7 @@ public class Controller implements Game {
         }
         
         readStats();
-        
-        String input = "";
-        while (!input.equals("n")) {
-            input = getUserInput();
-            if (input.length() > 1) {
-                System.out.println("Invalid input. Only input one character.");
-            } else if (input.charAt(0) == 'y') {
-                System.out.println("\nStarting new game...\n");
-                startGame();
-                return;
-            } else if (input.charAt(0) == 'n') {
-                System.out.println("Thank you for playing!");
-                return;
-            } else {
-                System.out.println("Invalid input. Please try again.");
-            }
-        }
+        view.showReplay();
     }
 
     @Override

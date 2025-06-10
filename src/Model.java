@@ -53,7 +53,7 @@ public class Model {
 
     // Word Check Methods
     public boolean isValidGuessWord(String guess) {
-        return WordValidator.isValidGuessWord(guess);
+        return wordValidator.isValidGuessWord(guess);
     }
 
     public boolean isFiveChars(String guess) {
@@ -61,6 +61,7 @@ public class Model {
     }
 
     // End of Game Methods
+    
     public void saveStats(int stats) {
         statSaver.saveStats(stats);
     }
@@ -80,7 +81,7 @@ public class Model {
     }
 
     // Get Feedback (check grey, yellow, green) Method
-    public String getFeedback(String targetWord, String guess, int attempts) {
+    public void getFeedback(String targetWord, String guess, int attempts) {
         feedback = "";
         attempt = attempts;
         boolean[] used = new boolean[5];
@@ -116,7 +117,6 @@ public class Model {
         }
         feedback = temp;
         notifyListenerFeedback();
-        return feedback;
     }
 
     // Stats Methods
