@@ -252,7 +252,11 @@ public class View extends JFrame implements ModelListener {
         tutorialPanel.add(tutorialTopPannel, BorderLayout.NORTH);
 
         // Center Panel for Tutorial
+        JPanel tutorialMainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        tutorialMainPanel.setBackground(backGroundCol);
+
         JPanel tutorialCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        tutorialCenterPanel.setPreferredSize(new Dimension(600, 800));
         tutorialCenterPanel.setBackground(backGroundCol);
 
         // Tutorial Title Label
@@ -335,7 +339,8 @@ public class View extends JFrame implements ModelListener {
         tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
         tutorialCenterPanel.add(tutorialText, BorderLayout.CENTER);
 
-        tutorialPanel.add(tutorialCenterPanel, BorderLayout.CENTER);
+        tutorialMainPanel.add(tutorialCenterPanel);
+        tutorialPanel.add(tutorialMainPanel, BorderLayout.CENTER);
 
         // Third panel (Stats)
         JPanel statsPanel = new JPanel(new BorderLayout());
@@ -356,7 +361,11 @@ public class View extends JFrame implements ModelListener {
         statsPanel.add(statsTopPannel, BorderLayout.NORTH);
 
         // Center Panel for Stats
+        JPanel statsMainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        statsMainPanel.setBackground(backGroundCol);
+
         JPanel statsCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        statsCenterPanel.setPreferredSize(new Dimension(600, 800));
         statsCenterPanel.setBackground(backGroundCol);
 
         // Stats Title Label
@@ -535,7 +544,8 @@ public class View extends JFrame implements ModelListener {
 
         statsCenterPanel.add(ReplayPanel, BorderLayout.CENTER);
 
-        statsPanel.add(statsCenterPanel, BorderLayout.CENTER);
+        statsMainPanel.add(statsCenterPanel, BorderLayout.CENTER);
+        statsPanel.add(statsMainPanel, BorderLayout.CENTER);
 
         //Add panels to cardPanel
         cardPanel.add(tutorialPanel, "TUTORIAL");
