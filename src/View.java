@@ -53,19 +53,23 @@ public class View extends JFrame implements ModelListener {
     private HashMap<Character, Integer> keyColours = new HashMap<>();
 
     // GUI Components
+    private JPanel topPannel;
     private JButton tutorialButton;
     private JButton statsButton;
-    private JButton closeButton;
-    private JButton closeButton2;
     private JButton replayButton;
     private JLabel popUplabel;
+
+    private JButton closeButton;
+    private JButton closeButton2;
+    private JPanel ReplayPanel;
+    private JButton replayButton2;
 
     private JLabel gamesPlayedNumber;
     private JLabel percentNumber;
     private JLabel streakNumber;
     private JLabel maxNumber;
 
-    Color backroundCol = new Color(18, 18, 19);
+    Color backGroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
     Color keysCol = new Color(129, 131, 132);
     Color green = new Color(106, 170, 100);
@@ -99,14 +103,14 @@ public class View extends JFrame implements ModelListener {
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
         // Top panel for How-to-Play & Stats
-        JPanel topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        topPannel.setBackground(backroundCol);
+        topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        topPannel.setBackground(backGroundCol);
         topPannel.setBorder(BorderFactory.createLineBorder(borderCol));
 
         tutorialButton = new JButton("How to Play");
         tutorialButton.setFont(new Font("Helvetica", Font.BOLD, 16));
         tutorialButton.setFocusable(false);
-        tutorialButton.setBackground(backroundCol);
+        tutorialButton.setBackground(backGroundCol);
         tutorialButton.setForeground(Color.WHITE);
         tutorialButton.setPreferredSize(new Dimension(120, 30));
         tutorialButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
@@ -115,7 +119,7 @@ public class View extends JFrame implements ModelListener {
         statsButton = new JButton("Statistics");
         statsButton.setFont(new Font("Helvetica", Font.BOLD, 16));
         statsButton.setFocusable(false);
-        statsButton.setBackground(backroundCol);
+        statsButton.setBackground(backGroundCol);
         statsButton.setForeground(Color.WHITE);
         statsButton.setPreferredSize(new Dimension(100, 30));
         statsButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
@@ -124,26 +128,25 @@ public class View extends JFrame implements ModelListener {
         replayButton = new JButton("Replay");
         replayButton.setFont(new Font("Helvetica", Font.BOLD, 16));
         replayButton.setFocusable(false);
-        replayButton.setBackground(backroundCol);
+        replayButton.setBackground(backGroundCol);
         replayButton.setForeground(Color.WHITE);
         replayButton.setPreferredSize(new Dimension(70, 30));
         replayButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
-        topPannel.add(replayButton);
 
         gamePanel.add(topPannel, BorderLayout.NORTH);
 
         // Center panel for Announcement / Label
         JPanel CenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        CenterPanel.setBackground(backroundCol);
+        CenterPanel.setBackground(backGroundCol);
 
         JPanel popUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 1000, 0));
-        popUpPanel.setBackground(backroundCol);
+        popUpPanel.setBackground(backGroundCol);
         popUpPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
         popUplabel = new JLabel("test", SwingConstants.CENTER);
         popUplabel.setOpaque(true);
         popUplabel.setFont(new Font("Helvetica", Font.BOLD, 14));
-        popUplabel.setBackground(backroundCol);
-        popUplabel.setForeground(backroundCol);
+        popUplabel.setBackground(backGroundCol);
+        popUplabel.setForeground(backGroundCol);
         popUplabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         popUpPanel.add(popUplabel);
@@ -152,19 +155,19 @@ public class View extends JFrame implements ModelListener {
         // Second Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         gridPanel.setBorder(BorderFactory.createEmptyBorder(0, 1000, 30, 1000));
-        gridPanel.setBackground(backroundCol);
+        gridPanel.setBackground(backGroundCol);
         gridPanel.setPreferredSize(new Dimension(280, 400));
         tiles = new JLabel[ROWS][COLS];
 
         for (int i = 0; i < ROWS; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
-            rowPanel.setBackground(backroundCol);
+            rowPanel.setBackground(backGroundCol);
             for (int j = 0; j < COLS; j++) {
                 JLabel tile = new JLabel(" ", SwingConstants.CENTER);
                 tile.setOpaque(true);
                 tile.setFont(new Font("Helvetica", Font.BOLD, 24));
                 tile.setPreferredSize(new Dimension(50, 50));
-                tile.setBackground(backroundCol);
+                tile.setBackground(backGroundCol);
                 tile.setForeground(Color.WHITE);
                 tile.setBorder(BorderFactory.createLineBorder(borderCol));
                 tiles[i][j] = tile;
@@ -180,7 +183,7 @@ public class View extends JFrame implements ModelListener {
         JPanel keyboardPanel = new JPanel();
         keyboardPanel.setLayout(new GridLayout(3, 1, 5, 5));
         keyboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        keyboardPanel.setBackground(backroundCol);
+        keyboardPanel.setBackground(backGroundCol);
 
         String[] rows = {
             "QWERTYUIOP",
@@ -190,7 +193,7 @@ public class View extends JFrame implements ModelListener {
 
         for (String row : rows) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 1));
-            rowPanel.setBackground(backroundCol);
+            rowPanel.setBackground(backGroundCol);
             for (char c : row.toCharArray()) {
                 JButton key;
                 switch (c) {
@@ -229,15 +232,14 @@ public class View extends JFrame implements ModelListener {
         JPanel tutorialPanel = new JPanel(new BorderLayout());
 
         // Top panel for How-to-Play
-        JPanel tutorialTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        tutorialTopPannel.setBackground(backroundCol);
-        tutorialTopPannel.setBorder(BorderFactory.createLineBorder(borderCol));
+        JPanel tutorialTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        tutorialTopPannel.setBackground(backGroundCol);
 
         closeButton = new JButton("X");
-        closeButton.setPreferredSize(new Dimension(50, 50));
-        closeButton.setFont(new Font("Helvetica", Font.BOLD, 16));
+        closeButton.setPreferredSize(new Dimension(80, 50));
+        closeButton.setFont(new Font("Helvetica", Font.PLAIN, 28));
         closeButton.setFocusable(false);
-        closeButton.setBackground(backroundCol);
+        closeButton.setBackground(backGroundCol);
         closeButton.setForeground(Color.WHITE);
         closeButton.setBorderPainted(false);
         tutorialTopPannel.add(closeButton);
@@ -247,15 +249,13 @@ public class View extends JFrame implements ModelListener {
         JPanel statsPanel = new JPanel(new BorderLayout());
 
         // Top panel for Stats
-        JPanel statsTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        statsTopPannel.setBackground(backroundCol);
-        statsTopPannel.setBorder(BorderFactory.createLineBorder(borderCol));
+        JPanel statsTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        statsTopPannel.setBackground(backGroundCol);
 
         closeButton2 = new JButton("X");
-        closeButton2.setPreferredSize(new Dimension(50, 50));
-        closeButton2.setFont(new Font("Helvetica", Font.BOLD, 16));
-        closeButton2.setFocusable(false);
-        closeButton2.setBackground(backroundCol);
+        closeButton2.setPreferredSize(new Dimension(80, 50));
+        closeButton2.setFont(new Font("Helvetica", Font.PLAIN, 28));
+        closeButton2.setBackground(backGroundCol);
         closeButton2.setForeground(Color.WHITE);
         closeButton2.setBorderPainted(false);
         statsTopPannel.add(closeButton2);
@@ -263,12 +263,12 @@ public class View extends JFrame implements ModelListener {
 
         // Center Panel for Stats
         JPanel statsCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
-        statsCenterPanel.setBackground(backroundCol);
+        statsCenterPanel.setBackground(backGroundCol);
 
         // Stats Title Panel
         JPanel statsTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        statsTitlePanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 20, 1000));
-        statsTitlePanel.setBackground(backroundCol);
+        statsTitlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 1000));
+        statsTitlePanel.setBackground(backGroundCol);
         JLabel statsTitle = new JLabel("Statistics");
         statsTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
         statsTitle.setForeground(Color.WHITE);
@@ -277,12 +277,12 @@ public class View extends JFrame implements ModelListener {
 
         // Inner panel to create margin
         JPanel statsInnerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
-        statsInnerPanel.setBackground(backroundCol);
+        statsInnerPanel.setBackground(backGroundCol);
 
         // Panel for played games stat
         JPanel playedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         playedPanel.setPreferredSize(new Dimension(100, 100));
-        playedPanel.setBackground(backroundCol);
+        playedPanel.setBackground(backGroundCol);
 
         gamesPlayedNumber = new JLabel(Integer.toString(gamesPlayed));
         gamesPlayedNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
@@ -306,7 +306,7 @@ public class View extends JFrame implements ModelListener {
         // Panel for win percentage stat
         JPanel percentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         percentPanel.setPreferredSize(new Dimension(100, 100));
-        percentPanel.setBackground(backroundCol);
+        percentPanel.setBackground(backGroundCol);
 
         percentNumber = new JLabel(Integer.toString(winPercent));
         percentNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
@@ -330,7 +330,7 @@ public class View extends JFrame implements ModelListener {
         // Panel for current streak stat
         JPanel streakPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         streakPanel.setPreferredSize(new Dimension(100, 100));
-        streakPanel.setBackground(backroundCol);
+        streakPanel.setBackground(backGroundCol);
 
         streakNumber = new JLabel(Integer.toString(winStreak));
         streakNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
@@ -354,7 +354,7 @@ public class View extends JFrame implements ModelListener {
         // Panel for maximum streak stat
         JPanel maxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         maxPanel.setPreferredSize(new Dimension(100, 100));
-        maxPanel.setBackground(backroundCol);
+        maxPanel.setBackground(backGroundCol);
 
         maxNumber = new JLabel(Integer.toString(maxStreak));
         maxNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
@@ -379,12 +379,12 @@ public class View extends JFrame implements ModelListener {
 
         // Guess Distribution panel with margin
         JPanel guessDistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
-        guessDistPanel.setPreferredSize(new Dimension(500, 1000));
-        guessDistPanel.setBackground(backroundCol);
+        guessDistPanel.setPreferredSize(new Dimension(9999, 250));
+        guessDistPanel.setBackground(backGroundCol);
 
         // Title Panel
         JPanel guessDistTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 20));
-        guessDistTitlePanel.setBackground(backroundCol);
+        guessDistTitlePanel.setBackground(backGroundCol);
         JLabel guessDistTitle = new JLabel("GUESS DISTRIBUTION");
         guessDistTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
         guessDistTitle.setForeground(Color.WHITE);
@@ -399,7 +399,7 @@ public class View extends JFrame implements ModelListener {
         // Distribution  Panel
         for (int i = 1; i < 7; i++) {
             JPanel DistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
-            DistPanel.setBackground(backroundCol);
+            DistPanel.setBackground(backGroundCol);
             JLabel guessDistTitleNum = new JLabel(Integer.toString(i));
             guessDistTitleNum.setFont(new Font("Helvetica", Font.BOLD, 16));
             guessDistTitleNum.setForeground(Color.WHITE);
@@ -427,6 +427,22 @@ public class View extends JFrame implements ModelListener {
         }
 
         statsCenterPanel.add(guessDistPanel, BorderLayout.CENTER);
+
+        // Replay Button Panel
+        ReplayPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 20));
+        ReplayPanel.setPreferredSize(new Dimension(500, 200));
+        ReplayPanel.setBackground(backGroundCol);
+        
+        replayButton2 = new JButton("Play Again?");
+        replayButton2.setFont(new Font("Helvetica", Font.BOLD, 16));
+        replayButton2.setFocusable(false);
+        replayButton2.setBackground(backGroundCol);
+        replayButton2.setForeground(Color.WHITE);
+        replayButton2.setPreferredSize(new Dimension(120, 60));
+        replayButton2.setBorder(BorderFactory.createLineBorder(borderCol));
+        
+        statsCenterPanel.add(ReplayPanel, BorderLayout.CENTER);
+
         statsPanel.add(statsCenterPanel, BorderLayout.CENTER);
 
         //Add panels to cardPanel
@@ -447,6 +463,25 @@ public class View extends JFrame implements ModelListener {
         } else {
             typingEnabled = false;
         }
+    }
+
+    // Reset Methods
+    public void resetAttempts() {
+        attempts = 0;
+    }
+
+    public void hideReplay() {
+        topPannel.remove(replayButton);
+        ReplayPanel.remove(replayButton2);
+        topPannel.revalidate();
+        topPannel.repaint();
+    }
+
+    public void showReplay() {
+        topPannel.add(replayButton);
+        ReplayPanel.add(replayButton2, BorderLayout.CENTER);
+        topPannel.revalidate();
+        topPannel.repaint();
     }
 
     // Tile Methods
@@ -509,7 +544,7 @@ public class View extends JFrame implements ModelListener {
     public void resetBoard() {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                setTile(i, j, backroundCol);
+                setTile(i, j, backGroundCol);
                 setTile(i, j, ' ');
             }
         }
@@ -526,6 +561,7 @@ public class View extends JFrame implements ModelListener {
     public void resetKeys() {
         for (char c = 'A'; c <= 'Z'; c++) {
             setKeyColor(c, keysCol);
+            keyColours.put(c, 0);
         }
     }
 
@@ -561,6 +597,8 @@ public class View extends JFrame implements ModelListener {
     public void registerReplayButtonListener(ActionListener listener) {
         JButton key = replayButton;
         key.addActionListener(listener);
+        key = replayButton2;
+        key.addActionListener(listener);
     }
 
     // Pop up Methods
@@ -592,8 +630,8 @@ public class View extends JFrame implements ModelListener {
 
                 // Hide the popup after fading
                 SwingUtilities.invokeLater(() -> {
-                    popUplabel.setBackground(backroundCol);
-                    popUplabel.setForeground(backroundCol);
+                    popUplabel.setBackground(backGroundCol);
+                    popUplabel.setForeground(backGroundCol);
                 });
 
             } catch (InterruptedException e) {
@@ -612,8 +650,8 @@ public class View extends JFrame implements ModelListener {
     }
 
     public void hidePopUp() { // For when resetting game
-        popUplabel.setBackground(backroundCol);
-        popUplabel.setForeground(backroundCol);
+        popUplabel.setBackground(backGroundCol);
+        popUplabel.setForeground(backGroundCol);
     }
 
     // Stats Page Methods
@@ -640,7 +678,7 @@ public class View extends JFrame implements ModelListener {
             }
         }
 
-        int finalMultiplier = largestDist / 3;
+        int finalMultiplier = 250 / largestDist;
 
         // Start a new animation thread (copied the popup label's code)
         currentThread = new Thread(() -> {
@@ -681,11 +719,6 @@ public class View extends JFrame implements ModelListener {
         });
 
         currentThread.start();
-    }
-
-    // reset attempts
-    public void resetAttempts() {
-        attempts = 0;
     }
 
     // Model Listener Methods

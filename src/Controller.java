@@ -120,6 +120,7 @@ public class Controller implements Game {
                             startGame();
                         }
                     }).start();
+                    view.showCard("GAME");
                 }
             }
         });
@@ -145,6 +146,7 @@ public class Controller implements Game {
         int maxTries = 6;
         model.clearGuessList();
         model.clearCurrentWord();
+        view.hideReplay();
         view.resetAttempts();
         view.resetBoard();
         view.resetKeys();
@@ -209,8 +211,9 @@ public class Controller implements Game {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-
+        
         readStats();
+        view.showReplay();
     }
 
     @Override
