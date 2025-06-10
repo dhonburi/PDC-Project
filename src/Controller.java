@@ -29,23 +29,26 @@ public class Controller implements Game {
         this.view = view;
 
         model.addListener(view);
+        model.updateStats();
 
         view.registerKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                char c = e.getKeyChar();
-                if (Character.isLetter(c)) {
-                    c = Character.toUpperCase(c);
-                    model.addLetter(c);
-                    view.updateTileText();
-                } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    model.removeLastLetter();
-                    view.updateTileText();
-                } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    latestInput = model.getCurrentWord();
-                    inputReady = true;
-                    synchronized (Controller.this) {
-                        Controller.this.notify();
+                if (view.typingEnabled) {
+                    char c = e.getKeyChar();
+                    if (Character.isLetter(c)) {
+                        c = Character.toUpperCase(c);
+                        model.addLetter(c);
+                        view.updateTileText();
+                    } else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                        model.removeLastLetter();
+                        view.updateTileText();
+                    } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        latestInput = model.getCurrentWord();
+                        inputReady = true;
+                        synchronized (Controller.this) {
+                            Controller.this.notify();
+                        }
                     }
                 }
             }
@@ -56,8 +59,10 @@ public class Controller implements Game {
             view.registerKeyButtonListener(c, new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    model.addLetter(keyChar);
-                    view.updateTileText();
+                    if (view.typingEnabled) {
+                        model.addLetter(keyChar);
+                        view.updateTileText();
+                    }
                 }
             });
         }
@@ -65,18 +70,22 @@ public class Controller implements Game {
         view.registerKeyButtonListener('-', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.removeLastLetter();
-                view.updateTileText();
+                if (view.typingEnabled) {
+                    model.removeLastLetter();
+                    view.updateTileText();
+                }
             }
         });
 
         view.registerKeyButtonListener('+', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                latestInput = model.getCurrentWord();
-                inputReady = true;
-                synchronized (Controller.this) {
-                    Controller.this.notify();
+                if (view.typingEnabled) {
+                    latestInput = model.getCurrentWord();
+                    inputReady = true;
+                    synchronized (Controller.this) {
+                        Controller.this.notify();
+                    }
                 }
             }
         });
@@ -87,17 +96,19 @@ public class Controller implements Game {
                 view.showCard("TUTORIAL");
             }
         });
-        
+
         view.registerCloseButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 view.showCard("GAME");
             }
         });
-        
+
         view.registerStatsButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                model.updateStats();
+                view.updateStats();
                 view.showCard("STATS");
             }
         });
@@ -129,14 +140,14 @@ public class Controller implements Game {
         System.out.println("?: Yellow (Letter is in the word but in the wrong spot.)");
         System.out.println("X: Grey (Letter is not in the word in any spot.)");
         System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
-        
+
         Thread currentThread;
-        
+
         for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput("Enter your 5-letter guess (" + attempt + "/" + maxTries + "): ").toLowerCase();
 
             if (!model.isFiveChars(guess)) {
-               view.updatePopUp("Must be exactly 5 letters.");
+                view.updatePopUp("Must be exactly 5 letters.");
                 attempt--;
                 continue;
             } else {

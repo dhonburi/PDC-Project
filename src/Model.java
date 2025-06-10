@@ -122,6 +122,8 @@ public class Model {
     // Stats Methods
     public void updateStats() {
         statSaver.readFile();
+        streakCounter.readFile();
+        notifyListenerStats();
     }
 
     public int getGamesPlayed() {
@@ -186,7 +188,7 @@ public class Model {
 
     private void notifyListenerStats() {
         if (listener != null) {
-            
+            listener.onStats(getGamesPlayed(), getWinPercentage(), getStreak(), getMaxStreak(), getGuessDist(1), getGuessDist(2), getGuessDist(3), getGuessDist(4), getGuessDist(5), getGuessDist(6));
         }
     }
 }

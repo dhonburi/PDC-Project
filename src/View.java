@@ -17,6 +17,8 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -44,22 +46,31 @@ public class View extends JFrame implements ModelListener {
     private JLabel[][] tiles;
     public String input;
     private int attempts;
-    private HashMap<Character, JButton> keyButtons = new HashMap<>();
-    private HashMap<Character, Integer> keyColours = new HashMap<>();
     private String currentWord;
     private Thread currentThread;
+    public boolean typingEnabled = true;
 
     private int gamesPlayed;
     private int winPercent;
     private int winStreak;
     private int maxStreak;
     private HashMap<Integer, Integer> distributions = new HashMap<>();
+    private HashMap<Integer, JPanel> distBar = new HashMap<>();
+    private HashMap<Integer, JLabel> distLabel = new HashMap<>();
+
+    private HashMap<Character, JButton> keyButtons = new HashMap<>();
+    private HashMap<Character, Integer> keyColours = new HashMap<>();
 
     private JButton tutorialButton;
     private JButton statsButton;
     private JButton closeButton;
     private JButton closeButton2;
     private JLabel popUplabel;
+
+    private JLabel gamesPlayedNumber;
+    private JLabel percentNumber;
+    private JLabel streakNumber;
+    private JLabel maxNumber;
 
     Color backroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
@@ -83,6 +94,14 @@ public class View extends JFrame implements ModelListener {
         // Create CardLayout and main panel
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
+
+        // Initialise the Stats
+        for (int i = 1; i <= 7; i++) {
+            distributions.put(i, 0);
+            distBar.put(i, new JPanel());
+            distLabel.put(i, new JLabel());
+
+        }
 
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
@@ -263,10 +282,11 @@ public class View extends JFrame implements ModelListener {
         playedPanel.setPreferredSize(new Dimension(100, 100));
         playedPanel.setBackground(backroundCol);
 
-        JLabel gamesPlayedNumber = new JLabel("172");
+        gamesPlayedNumber = new JLabel(Integer.toString(gamesPlayed));
         gamesPlayedNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
         gamesPlayedNumber.setForeground(Color.WHITE);
-        gamesPlayedNumber.setPreferredSize(new Dimension(gamesPlayedNumber.getPreferredSize().width, 60));
+        gamesPlayedNumber.setPreferredSize(new Dimension(120, 60));
+        gamesPlayedNumber.setHorizontalAlignment(SwingConstants.CENTER);
         playedPanel.add(gamesPlayedNumber, BorderLayout.CENTER);
 
         JPanel breakLine = new JPanel();
@@ -286,10 +306,11 @@ public class View extends JFrame implements ModelListener {
         percentPanel.setPreferredSize(new Dimension(100, 100));
         percentPanel.setBackground(backroundCol);
 
-        JLabel percentNumber = new JLabel("98");
+        percentNumber = new JLabel(Integer.toString(winPercent));
         percentNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
         percentNumber.setForeground(Color.WHITE);
-        percentNumber.setPreferredSize(new Dimension(percentNumber.getPreferredSize().width, 60));
+        percentNumber.setPreferredSize(new Dimension(120, 60));
+        percentNumber.setHorizontalAlignment(SwingConstants.CENTER);
         percentPanel.add(percentNumber, BorderLayout.CENTER);
 
         JPanel breakLine2 = new JPanel();
@@ -309,10 +330,11 @@ public class View extends JFrame implements ModelListener {
         streakPanel.setPreferredSize(new Dimension(100, 100));
         streakPanel.setBackground(backroundCol);
 
-        JLabel streakNumber = new JLabel("0");
+        streakNumber = new JLabel(Integer.toString(winStreak));
         streakNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
         streakNumber.setForeground(Color.WHITE);
-        streakNumber.setPreferredSize(new Dimension(streakNumber.getPreferredSize().width, 60));
+        streakNumber.setPreferredSize(new Dimension(120, 60));
+        streakNumber.setHorizontalAlignment(SwingConstants.CENTER);
         streakPanel.add(streakNumber, BorderLayout.CENTER);
 
         JPanel breakLine3 = new JPanel();
@@ -320,7 +342,7 @@ public class View extends JFrame implements ModelListener {
         breakLine3.setOpaque(false);
         streakPanel.add(breakLine3);
 
-        JLabel streakTitle = new JLabel("<html><center>Current<br>Streak</center></html>");
+        JLabel streakTitle = new JLabel("<html><center>Current<br>Streak</center></html>"); // had to use html because could not find any solutiion to warp the label, \n doesnt work.
         streakTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
         streakTitle.setForeground(Color.WHITE);
         streakPanel.add(streakTitle, BorderLayout.CENTER);
@@ -332,10 +354,11 @@ public class View extends JFrame implements ModelListener {
         maxPanel.setPreferredSize(new Dimension(100, 100));
         maxPanel.setBackground(backroundCol);
 
-        JLabel maxNumber = new JLabel("11");
+        maxNumber = new JLabel(Integer.toString(maxStreak));
         maxNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
         maxNumber.setForeground(Color.WHITE);
-        maxNumber.setPreferredSize(new Dimension(maxNumber.getPreferredSize().width, 60));
+        maxNumber.setPreferredSize(new Dimension(120, 60));
+        maxNumber.setHorizontalAlignment(SwingConstants.CENTER);
         maxPanel.add(maxNumber, BorderLayout.CENTER);
 
         JPanel breakLine4 = new JPanel();
@@ -381,10 +404,12 @@ public class View extends JFrame implements ModelListener {
             DistPanel.add(guessDistTitleNum, BorderLayout.CENTER);
 
             JPanel DistBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-            DistBar.setPreferredSize(new Dimension(25 * 10 + 30, 20));
+            distBar.put(i, DistBar);
+            DistBar.setPreferredSize(new Dimension(distributions.get(i) * 10 + 30, 20));
             DistBar.setBackground(gray);
 
-            JLabel guessDistNumber = new JLabel("25");
+            JLabel guessDistNumber = new JLabel(Integer.toString(distributions.get(i)));
+            distLabel.put(i, guessDistNumber);
             guessDistNumber.setFont(new Font("Helvetica", Font.BOLD, 16));
             guessDistNumber.setForeground(Color.WHITE);
             DistBar.add(guessDistNumber, BorderLayout.CENTER);
@@ -403,9 +428,10 @@ public class View extends JFrame implements ModelListener {
         statsPanel.add(statsCenterPanel, BorderLayout.CENTER);
 
         //Add panels to cardPanel
+        cardPanel.add(gamePanel, "GAME");
         cardPanel.add(statsPanel, "STATS");
         cardPanel.add(tutorialPanel, "TUTORIAL");
-        cardPanel.add(gamePanel, "GAME");
+        
 
         add(cardPanel);
 
@@ -415,6 +441,11 @@ public class View extends JFrame implements ModelListener {
     // CardLayout Methods
     public void showCard(String name) {
         cardLayout.show(cardPanel, name);
+        if (name.equals("GAME")) {
+            typingEnabled = true;
+        } else {
+            typingEnabled = false;
+        }
     }
 
     // Tile & Keyboard Methods
@@ -437,6 +468,7 @@ public class View extends JFrame implements ModelListener {
     }
 
     public void feedbackRow(String feedback, int attempt) {
+        typingEnabled = false;
         for (int i = 0; i < 5; i++) {
             char c = Character.toUpperCase(input.charAt(i));
             switch (feedback.charAt(i)) {
@@ -463,8 +495,14 @@ public class View extends JFrame implements ModelListener {
                     setTile(attempt - 1, i, Color.RED); //only if error
                     break;
             }
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(View.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         currentWord = "";
+        typingEnabled = true;
     }
 
     public void setKeyColor(char c, Color background) {
@@ -534,6 +572,65 @@ public class View extends JFrame implements ModelListener {
                 SwingUtilities.invokeLater(() -> {
                     popUplabel.setBackground(backroundCol);
                     popUplabel.setForeground(backroundCol);
+                });
+
+            } catch (InterruptedException e) {
+                // Gracefully end the thread
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        currentThread.start();
+    }
+
+    // Stats Page Methods
+    public void updateStats() {
+        gamesPlayedNumber.setText(Integer.toString(gamesPlayed));
+        percentNumber.setText(Integer.toString(winPercent));
+        streakNumber.setText(Integer.toString(winStreak));
+        maxNumber.setText(Integer.toString(maxStreak));
+        for (int i = 1; i <= 7; i++) {
+            distLabel.get(i).setText(Integer.toString(distributions.get(i)));
+        }
+        distBarAnimation();
+    }
+
+    public void distBarAnimation() {
+        // Stop any previous animation thread
+        if (currentThread != null && currentThread.isAlive()) {
+            currentThread.interrupt();
+        }
+
+        // Start a new animation thread (copied the popup label's code)
+        currentThread = new Thread(() -> {
+            try {
+                for (int i = 0; i <= 50; i++) {
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
+
+                    // ChatGpt
+                    double t = i / 50.0;  // progress 0 to 1
+                    double easeOut = 1 - Math.pow(1 - t, 3);
+                    double multiplier = (double) (easeOut * 10);
+
+                    for (int j = 1; j <= 7; j++) {
+                        int barNum = j;
+                        SwingUtilities.invokeLater(() -> {
+                            distBar.get(barNum).setPreferredSize(new Dimension((int) (distributions.get(barNum) * multiplier) + 30, 20));
+                            distBar.get(barNum).revalidate();
+                            distBar.get(barNum).repaint();
+                        });
+
+                    }
+
+                    Thread.sleep(10);
+                }
+
+                SwingUtilities.invokeLater(() -> {
+                    for (int i = 1; i <= 7; i++) {
+                        distBar.get(i).setPreferredSize(new Dimension(distributions.get(i) * 10 + 30, 20));
+                    }
                 });
 
             } catch (InterruptedException e) {
