@@ -33,6 +33,9 @@ public class Controller implements Game {
         view.registerKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        view.showCard("GAME");
+                }
                 if (view.typingEnabled && gameInProgress) {
                     char c = e.getKeyChar();
                     if (Character.isLetter(c)) {
@@ -48,8 +51,6 @@ public class Controller implements Game {
                         synchronized (Controller.this) {
                             Controller.this.notify();
                         }
-                    } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                        view.showCard("GAME");
                     }
                 }
             }
@@ -153,13 +154,6 @@ public class Controller implements Game {
         view.resetBoard();
         view.resetKeys();
         view.hidePopUp();
-        System.out.println("~~ Welcome to Wordle! ~~");
-        System.out.println("Each guess must be a valid 5-letter word.\n");
-        System.out.println("The symbol under the tiles will show how close your guess was to the word.");
-        System.out.println("V: Green (Letter is in the word and in the correct spot.)");
-        System.out.println("?: Yellow (Letter is in the word but in the wrong spot.)");
-        System.out.println("X: Grey (Letter is not in the word in any spot.)");
-        System.out.println("Please enter your guess as a valid 5-letter word (e.g., apple, stone, grain).\n");
 
         for (attempt = 1; attempt <= maxTries; attempt++) {
             String guess = getUserInput().toLowerCase();

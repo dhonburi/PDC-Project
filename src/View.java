@@ -297,7 +297,7 @@ public class View extends JFrame implements ModelListener {
 
         // Example Grid (Modified the Game Card code)
         String[] words = {"CRANE", "ABOUT", "HOUSE"};
-        String[] caption = {"<html><b>C</b> is in the word and in the correct spot.</html>", "<html><b>B</b> is in the word but in the wrong spot.</html>", "<html><b>S</b> is not in the word in any spot.</html>"};
+        String[] caption = {"<html><b><em>C</em></b> is in the word and in the correct spot.</html>", "<html><b><em>B</em></b> is in the word but in the wrong spot.</html>", "<html><b><em>S</em></b> is not in the word in any spot.</html>"};
         for (int i = 0; i < 3; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
             rowPanel.setBackground(backGroundCol);
@@ -329,7 +329,7 @@ public class View extends JFrame implements ModelListener {
             tutorialCenterPanel.add(tutorialExamplesText, BorderLayout.CENTER);
         }
 
-        JLabel tutorialText = new JLabel("<html>Press <b>'X'</b> on the top right of the screen or the <b>'Esc'</b> key <br>to close this Tutorial Menu and start playing!</html>");
+        JLabel tutorialText = new JLabel("<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>");
         tutorialText.setFont(new Font("Helvetica", Font.PLAIN, 17));
         tutorialText.setForeground(Color.WHITE);
         tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
