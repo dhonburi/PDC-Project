@@ -20,7 +20,6 @@ public class Controller implements Game {
     private String latestInput = "";
     private boolean inputReady = false;
 
-    private int attempt;
     private boolean gameInProgress;
 
     public Controller(Model model, View view) {
@@ -34,7 +33,7 @@ public class Controller implements Game {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                        view.showCard("GAME");
+                    view.showCard("GAME");
                 }
                 if (view.typingEnabled && gameInProgress) {
                     char c = e.getKeyChar();
@@ -117,12 +116,7 @@ public class Controller implements Game {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!gameInProgress) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            startGame();
-                        }
-                    }).start();
+                    startGame();
                     view.showCard("GAME");
                 }
             }
@@ -145,57 +139,11 @@ public class Controller implements Game {
     @Override
     public void startGame() {
         gameInProgress = true;
-        String targetWord = model.getRandomWord();
-        int maxTries = 6;
-        model.clearGuessList();
-        model.clearCurrentWord();
-        view.hideReplay();
-        view.resetAttempts();
-        view.resetBoard();
-        view.resetKeys();
-        view.hidePopUp();
 
-        for (attempt = 1; attempt <= maxTries; attempt++) {
-            String guess = getUserInput().toLowerCase();
+        GameLoop game = new GameLoop(model, view, this);
+        Thread thread = new Thread(game);
 
-            if (!model.isFiveChars(guess)) {
-                view.updatePopUp("Not enough letters");
-                attempt--;
-                continue;
-            } else {
-            }
-
-            if (!model.isValidGuessWord(guess)) {
-                view.updatePopUp("Not in word list");
-                attempt--;
-                continue;
-            }
-
-            if (model.GuessListContains(guess)) {
-                view.updatePopUp("Word already guessed");
-                attempt--;
-                continue;
-            }
-
-            if (guess.equals(targetWord)) {
-                model.win(attempt);
-                view.updatePopUp("Congratulations! You win!");
-                model.saveStats(attempt);
-                model.addStreak();
-                gameOver();
-                return;
-            } else {
-                model.addGuessList(guess);
-
-                model.getFeedback(targetWord, model.getGuessList(attempt - 1), attempt);
-                model.clearCurrentWord();
-            }
-        }
-
-        view.holdPopUp(targetWord.toUpperCase());
-        model.saveStats(7);
-        model.endStreak();
-        gameOver();
+        thread.start();
 
     }
 
@@ -207,7 +155,7 @@ public class Controller implements Game {
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
-        
+
         readStats();
         view.showReplay();
     }
