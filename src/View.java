@@ -37,9 +37,10 @@ public class View extends JFrame implements ModelListener {
     public String input;
     private int attempts;
     private String currentWord;
+    public boolean typingEnabled = false;
     private Thread currentThread;
-    public boolean typingEnabled = true;
-
+    
+    // Stats variables
     private int gamesPlayed;
     private int winPercent;
     private int winStreak;
@@ -70,6 +71,7 @@ public class View extends JFrame implements ModelListener {
     private JLabel streakNumber;
     private JLabel maxNumber;
 
+    // Colours
     Color backGroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
     Color keysCol = new Color(129, 131, 132);
@@ -82,7 +84,7 @@ public class View extends JFrame implements ModelListener {
     private CardLayout cardLayout;
 
     public View() {
-        // Basic JFrame setup
+        // JFrame setup
         setTitle("Wordle");
         setSize(600, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,62 +102,54 @@ public class View extends JFrame implements ModelListener {
             distLabel.put(i, new JLabel());
 
         }
+        // Setup the Card Panels
+        setupTutorialPanel();
+        setupGamePanel();
+        setupStatsPanel();
 
+        add(cardPanel);
+        setVisible(true);
+    }
+
+    private void setupGamePanel() {
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
+        
         // Top panel for How-to-Play & Stats Buttons
         topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         topPannel.setBackground(backGroundCol);
         topPannel.setBorder(BorderFactory.createLineBorder(borderCol));
 
-        tutorialButton = new JButton("How to Play");
-        tutorialButton.setFont(new Font("Helvetica", Font.BOLD, 16));
-        tutorialButton.setFocusable(false);
-        tutorialButton.setBackground(backGroundCol);
-        tutorialButton.setForeground(Color.WHITE);
-        tutorialButton.setPreferredSize(new Dimension(120, 30));
-        tutorialButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
-        tutorialButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Tutorial Card Button
+        tutorialButton = makeTopButton("How to Play", 120);
         topPannel.add(tutorialButton);
 
-        statsButton = new JButton("Statistics");
-        statsButton.setFont(new Font("Helvetica", Font.BOLD, 16));
-        statsButton.setFocusable(false);
-        statsButton.setBackground(backGroundCol);
-        statsButton.setForeground(Color.WHITE);
-        statsButton.setPreferredSize(new Dimension(100, 30));
-        statsButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
-        statsButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Stat Card Button
+        statsButton = makeTopButton("Statistics", 100);
         topPannel.add(statsButton);
 
-        replayButton = new JButton("Replay");
-        replayButton.setFont(new Font("Helvetica", Font.BOLD, 16));
-        replayButton.setFocusable(false);
-        replayButton.setBackground(backGroundCol);
-        replayButton.setForeground(Color.WHITE);
-        replayButton.setPreferredSize(new Dimension(70, 30));
-        replayButton.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
-        replayButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Reset game Button
+        replayButton = makeTopButton("Replay", 70);
 
         gamePanel.add(topPannel, BorderLayout.NORTH);
 
         // Center panel for Announcement / Label
         JPanel CenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         CenterPanel.setBackground(backGroundCol);
-
+        
+        // PopUp Label for announcements ("Not enough letters", "Congratuations")
         JPanel popUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 1000, 0));
         popUpPanel.setBackground(backGroundCol);
         popUpPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
-        popUplabel = new JLabel("test", SwingConstants.CENTER);
+        popUplabel = makeStyledLabel("test", 14);
         popUplabel.setOpaque(true);
-        popUplabel.setFont(new Font("Helvetica", Font.BOLD, 14));
         popUplabel.setBackground(backGroundCol);
         popUplabel.setForeground(backGroundCol);
         popUplabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
         popUpPanel.add(popUplabel);
 
         CenterPanel.add(popUpPanel, BorderLayout.CENTER);
+        
         // Second Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         gridPanel.setBorder(BorderFactory.createEmptyBorder(0, 1000, 30, 1000));
@@ -163,6 +157,7 @@ public class View extends JFrame implements ModelListener {
         gridPanel.setPreferredSize(new Dimension(280, 400));
         tiles = new JLabel[ROWS][COLS];
 
+        // Creating each letter "tile" and adding it to a hashmap for future editing
         for (int i = 0; i < ROWS; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
             rowPanel.setBackground(backGroundCol);
@@ -186,7 +181,7 @@ public class View extends JFrame implements ModelListener {
         // Bottom Panel for Keyboard 
         JPanel keyboardPanel = new JPanel();
         keyboardPanel.setLayout(new GridLayout(3, 1, 5, 5));
-        keyboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        keyboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
         keyboardPanel.setBackground(backGroundCol);
 
         String[] rows = {
@@ -195,6 +190,7 @@ public class View extends JFrame implements ModelListener {
             "+ZXCVBNM-"
         };
 
+        // Creating Keyboard Row by Row, using a Flow Layout, and again adding to a hashmap for future editing
         for (String row : rows) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 1));
             rowPanel.setBackground(backGroundCol);
@@ -232,70 +228,54 @@ public class View extends JFrame implements ModelListener {
         }
 
         gamePanel.add(keyboardPanel, BorderLayout.SOUTH);
+        cardPanel.add(gamePanel, "GAME");
+    }
 
+    private void setupTutorialPanel() {
         // Second panel (Tutorial)
         JPanel tutorialPanel = new JPanel(new BorderLayout());
 
-        // Top panel for How-to-Play
+        // Top panel for Tutorial (Just close button top right)
         JPanel tutorialTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         tutorialTopPannel.setBackground(backGroundCol);
 
-        closeButton = new JButton("X");
-        closeButton.setPreferredSize(new Dimension(80, 50));
-        closeButton.setFont(new Font("Helvetica", Font.PLAIN, 28));
-        closeButton.setFocusable(false);
-        closeButton.setBackground(backGroundCol);
-        closeButton.setForeground(Color.WHITE);
-        closeButton.setBorderPainted(false);
-        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton = makeCloseButton();
         tutorialTopPannel.add(closeButton);
         tutorialPanel.add(tutorialTopPannel, BorderLayout.NORTH);
 
-        // Center Panel for Tutorial
+        // Center Panel for Tutorial ( Two panels allow for centering content on any display size, while keeping text left aligned )
         JPanel tutorialMainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         tutorialMainPanel.setBackground(backGroundCol);
-
+     
         JPanel tutorialCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         tutorialCenterPanel.setPreferredSize(new Dimension(600, 800));
         tutorialCenterPanel.setBackground(backGroundCol);
 
         // Tutorial Title Label
-        JLabel tutorialTitle = new JLabel("How to Play");
-        tutorialTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
-        tutorialTitle.setForeground(Color.WHITE);
-        tutorialTitle.setBorder(BorderFactory.createEmptyBorder(-10, 0, 5, 1000));
+        JLabel tutorialTitle = makeTitleLabel("How to Play", 32);
+        tutorialTitle.setBorder(BorderFactory.createEmptyBorder(-10, 10, 5, 1000));
         tutorialCenterPanel.add(tutorialTitle, BorderLayout.CENTER);
 
         // Subtitle Label
-        JLabel tutorialSubtitle = new JLabel("Guess the Wordle in 6 tries.");
-        tutorialSubtitle.setFont(new Font("Helvetica", Font.PLAIN, 24));
-        tutorialSubtitle.setForeground(Color.WHITE);
+        JLabel tutorialSubtitle = makeStyledPlainLabel("Guess the Wordle in 6 tries.", 24);
         tutorialSubtitle.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 1000));
         tutorialCenterPanel.add(tutorialSubtitle, BorderLayout.CENTER);
 
         // Bullet Label
-        JLabel tutorialBullet = new JLabel("<html><ul><li>Each guess must be a valid 5-letter word.</li></ul></html>");
-        tutorialBullet.setFont(new Font("Helvetica", Font.PLAIN, 17));
-        tutorialBullet.setForeground(Color.WHITE);
+        JLabel tutorialBullet = makeStyledPlainLabel("<html><ul><li>Each guess must be a valid 5-letter word.</li></ul></html>", 17);
         tutorialBullet.setBorder(BorderFactory.createEmptyBorder(-5, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet, BorderLayout.CENTER);
 
-        JLabel tutorialBullet2 = new JLabel("<html><ul><li>The color of the tiles will change to show how close your<br>guess was to the word.</li></ul></html>");
-        tutorialBullet2.setFont(new Font("Helvetica", Font.PLAIN, 17));
-        tutorialBullet2.setForeground(Color.WHITE);
+        JLabel tutorialBullet2 = makeStyledPlainLabel("<html><ul><li>The color of the tiles will change to show how close your<br>guess was to the word.</li></ul></html>", 17);
         tutorialBullet2.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet2, BorderLayout.CENTER);
 
-        JLabel tutorialBullet3 = new JLabel("<html><ul><li>Use either the onscreen keyboard, or use your device's<br>keyboard. Enter to sumbit guess.</li></ul></html>");
-        tutorialBullet3.setFont(new Font("Helvetica", Font.PLAIN, 17));
-        tutorialBullet3.setForeground(Color.WHITE);
+        JLabel tutorialBullet3 = makeStyledPlainLabel("<html><ul><li>Use either the onscreen keyboard, or use your device's<br>keyboard. Enter to sumbit guess.</li></ul></html>", 17);
         tutorialBullet3.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet3, BorderLayout.CENTER);
 
         // Examples Title
-        JLabel tutorialExamplesTitle = new JLabel("Examples");
-        tutorialExamplesTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
-        tutorialExamplesTitle.setForeground(Color.WHITE);
+        JLabel tutorialExamplesTitle = makeStyledLabel("Examples", 20);
         tutorialExamplesTitle.setBorder(BorderFactory.createEmptyBorder(0, 20, 15, 1000));
         tutorialCenterPanel.add(tutorialExamplesTitle, BorderLayout.CENTER);
 
@@ -326,37 +306,31 @@ public class View extends JFrame implements ModelListener {
             tutorialCenterPanel.add(rowPanel);
 
             // Under Example Text
-            JLabel tutorialExamplesText = new JLabel(caption[i]);
-            tutorialExamplesText.setFont(new Font("Helvetica", Font.PLAIN, 17));
-            tutorialExamplesText.setForeground(Color.WHITE);
+            JLabel tutorialExamplesText = makeStyledPlainLabel(caption[i], 17);
             tutorialExamplesText.setBorder(BorderFactory.createEmptyBorder(5, 25, 10, 1000));
             tutorialCenterPanel.add(tutorialExamplesText, BorderLayout.CENTER);
         }
-
-        JLabel tutorialText = new JLabel("<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>");
-        tutorialText.setFont(new Font("Helvetica", Font.PLAIN, 17));
-        tutorialText.setForeground(Color.WHITE);
+        
+        // Closing Label
+        JLabel tutorialText = makeStyledPlainLabel("<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>", 17);
         tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
         tutorialCenterPanel.add(tutorialText, BorderLayout.CENTER);
 
         tutorialMainPanel.add(tutorialCenterPanel);
         tutorialPanel.add(tutorialMainPanel, BorderLayout.CENTER);
 
+        cardPanel.add(tutorialPanel, "TUTORIAL");
+    }
+
+    private void setupStatsPanel() {
         // Third panel (Stats)
         JPanel statsPanel = new JPanel(new BorderLayout());
 
-        // Top panel for Stats
+        // Top panel for Stats ( Just for the close button top right )
         JPanel statsTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         statsTopPannel.setBackground(backGroundCol);
 
-        closeButton2 = new JButton("X");
-        closeButton2.setPreferredSize(new Dimension(80, 50));
-        closeButton2.setFont(new Font("Helvetica", Font.PLAIN, 28));
-        closeButton2.setFocusable(false);
-        closeButton2.setBackground(backGroundCol);
-        closeButton2.setForeground(Color.WHITE);
-        closeButton2.setBorderPainted(false);
-        closeButton2.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton2 = makeCloseButton();
         statsTopPannel.add(closeButton2);
         statsPanel.add(statsTopPannel, BorderLayout.NORTH);
 
@@ -369,9 +343,7 @@ public class View extends JFrame implements ModelListener {
         statsCenterPanel.setBackground(backGroundCol);
 
         // Stats Title Label
-        JLabel statsTitle = new JLabel("Statistics");
-        statsTitle.setFont(new Font("SansSerif", Font.BOLD, 32));
-        statsTitle.setForeground(Color.WHITE);
+        JLabel statsTitle = makeTitleLabel("Statistics", 32);
         statsTitle.setBorder(BorderFactory.createEmptyBorder(10, 0, 20, 1000));
         statsCenterPanel.add(statsTitle, BorderLayout.CENTER);
 
@@ -380,99 +352,23 @@ public class View extends JFrame implements ModelListener {
         statsInnerPanel.setBackground(backGroundCol);
 
         // Panel for played games stat
-        JPanel playedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        playedPanel.setPreferredSize(new Dimension(100, 100));
-        playedPanel.setBackground(backGroundCol);
-
-        gamesPlayedNumber = new JLabel(Integer.toString(gamesPlayed));
-        gamesPlayedNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
-        gamesPlayedNumber.setForeground(Color.WHITE);
-        gamesPlayedNumber.setPreferredSize(new Dimension(120, 60));
-        gamesPlayedNumber.setHorizontalAlignment(SwingConstants.CENTER);
-        playedPanel.add(gamesPlayedNumber, BorderLayout.CENTER);
-
-        JPanel breakLine = new JPanel();
-        breakLine.setPreferredSize(new Dimension(9999, 0));
-        breakLine.setOpaque(false);
-        playedPanel.add(breakLine);
-
-        JLabel gamesPlayedTitle = new JLabel("Played");
-        gamesPlayedTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
-        gamesPlayedTitle.setForeground(Color.WHITE);
-        playedPanel.add(gamesPlayedTitle, BorderLayout.CENTER);
-
+        gamesPlayedNumber = makeStyledPlainLabel(Integer.toString(gamesPlayed), 64);
+        JPanel playedPanel = makeStatPanel(gamesPlayedNumber, "Played");
         statsInnerPanel.add(playedPanel, BorderLayout.CENTER);
 
         // Panel for win percentage stat
-        JPanel percentPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        percentPanel.setPreferredSize(new Dimension(100, 100));
-        percentPanel.setBackground(backGroundCol);
-
-        percentNumber = new JLabel(Integer.toString(winPercent));
-        percentNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
-        percentNumber.setForeground(Color.WHITE);
-        percentNumber.setPreferredSize(new Dimension(120, 60));
-        percentNumber.setHorizontalAlignment(SwingConstants.CENTER);
-        percentPanel.add(percentNumber, BorderLayout.CENTER);
-
-        JPanel breakLine2 = new JPanel();
-        breakLine2.setPreferredSize(new Dimension(9999, 0));
-        breakLine2.setOpaque(false);
-        percentPanel.add(breakLine2);
-
-        JLabel percentTitle = new JLabel("Win %");
-        percentTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
-        percentTitle.setForeground(Color.WHITE);
-        percentPanel.add(percentTitle, BorderLayout.CENTER);
-
+        percentNumber = makeStyledPlainLabel(Integer.toString(winPercent), 64);
+        JPanel percentPanel = makeStatPanel(percentNumber, "Win %");
         statsInnerPanel.add(percentPanel, BorderLayout.CENTER);
 
         // Panel for current streak stat
-        JPanel streakPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        streakPanel.setPreferredSize(new Dimension(100, 100));
-        streakPanel.setBackground(backGroundCol);
-
-        streakNumber = new JLabel(Integer.toString(winStreak));
-        streakNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
-        streakNumber.setForeground(Color.WHITE);
-        streakNumber.setPreferredSize(new Dimension(120, 60));
-        streakNumber.setHorizontalAlignment(SwingConstants.CENTER);
-        streakPanel.add(streakNumber, BorderLayout.CENTER);
-
-        JPanel breakLine3 = new JPanel();
-        breakLine3.setPreferredSize(new Dimension(9999, 0));
-        breakLine3.setOpaque(false);
-        streakPanel.add(breakLine3);
-
-        JLabel streakTitle = new JLabel("<html><center>Current<br>Streak</center></html>"); // had to use html because could not find any solutiion to warp the label, \n doesnt work.
-        streakTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
-        streakTitle.setForeground(Color.WHITE);
-        streakPanel.add(streakTitle, BorderLayout.CENTER);
-
+        streakNumber = makeStyledPlainLabel(Integer.toString(winStreak), 64);
+        JPanel streakPanel = makeStatPanel(streakNumber, "<html><center>Current<br>Streak</center></html>");
         statsInnerPanel.add(streakPanel, BorderLayout.CENTER);
 
         // Panel for maximum streak stat
-        JPanel maxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        maxPanel.setPreferredSize(new Dimension(100, 100));
-        maxPanel.setBackground(backGroundCol);
-
-        maxNumber = new JLabel(Integer.toString(maxStreak));
-        maxNumber.setFont(new Font("Helvetica", Font.PLAIN, 64));
-        maxNumber.setForeground(Color.WHITE);
-        maxNumber.setPreferredSize(new Dimension(120, 60));
-        maxNumber.setHorizontalAlignment(SwingConstants.CENTER);
-        maxPanel.add(maxNumber, BorderLayout.CENTER);
-
-        JPanel breakLine4 = new JPanel();
-        breakLine4.setPreferredSize(new Dimension(9999, 0));
-        breakLine4.setOpaque(false);
-        maxPanel.add(breakLine4);
-
-        JLabel maxTitle = new JLabel("<html><center>Max<br>Streak</center></html>");
-        maxTitle.setFont(new Font("Helvetica", Font.PLAIN, 16));
-        maxTitle.setForeground(Color.WHITE);
-        maxPanel.add(maxTitle, BorderLayout.CENTER);
-
+        maxNumber = makeStyledPlainLabel(Integer.toString(winStreak), 64);
+        JPanel maxPanel = makeStatPanel(maxNumber, "<html><center>Max<br>Streak</center></html>");
         statsInnerPanel.add(maxPanel, BorderLayout.CENTER);
 
         statsCenterPanel.add(statsInnerPanel, BorderLayout.CENTER);
@@ -482,12 +378,10 @@ public class View extends JFrame implements ModelListener {
         guessDistPanel.setPreferredSize(new Dimension(9999, 250));
         guessDistPanel.setBackground(backGroundCol);
 
-        // Title Panel
+        // Distribution Title Panel
         JPanel guessDistTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 20));
         guessDistTitlePanel.setBackground(backGroundCol);
-        JLabel guessDistTitle = new JLabel("GUESS DISTRIBUTION");
-        guessDistTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
-        guessDistTitle.setForeground(Color.WHITE);
+        JLabel guessDistTitle = makeStyledLabel("GUESS DISTRIBUTION", 20);
         guessDistTitlePanel.add(guessDistTitle, BorderLayout.CENTER);
         guessDistPanel.add(guessDistTitlePanel, BorderLayout.CENTER);
 
@@ -500,9 +394,7 @@ public class View extends JFrame implements ModelListener {
         for (int i = 1; i < 7; i++) {
             JPanel DistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
             DistPanel.setBackground(backGroundCol);
-            JLabel guessDistTitleNum = new JLabel(Integer.toString(i));
-            guessDistTitleNum.setFont(new Font("Helvetica", Font.BOLD, 16));
-            guessDistTitleNum.setForeground(Color.WHITE);
+            JLabel guessDistTitleNum = makeStyledLabel(Integer.toString(i), 16);
             DistPanel.add(guessDistTitleNum, BorderLayout.CENTER);
 
             JPanel DistBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -510,10 +402,8 @@ public class View extends JFrame implements ModelListener {
             DistBar.setPreferredSize(new Dimension(distributions.get(i) * 10 + 30, 20));
             DistBar.setBackground(gray);
 
-            JLabel guessDistNumber = new JLabel(Integer.toString(distributions.get(i)));
+            JLabel guessDistNumber = makeStyledLabel(Integer.toString(distributions.get(i)), 16);
             distLabel.put(i, guessDistNumber);
-            guessDistNumber.setFont(new Font("Helvetica", Font.BOLD, 16));
-            guessDistNumber.setForeground(Color.WHITE);
             DistBar.add(guessDistNumber, BorderLayout.CENTER);
 
             DistPanel.add(DistBar, BorderLayout.CENTER);
@@ -546,28 +436,83 @@ public class View extends JFrame implements ModelListener {
 
         statsMainPanel.add(statsCenterPanel, BorderLayout.CENTER);
         statsPanel.add(statsMainPanel, BorderLayout.CENTER);
-
-        //Add panels to cardPanel
-        cardPanel.add(tutorialPanel, "TUTORIAL");
-        cardPanel.add(gamePanel, "GAME");
         cardPanel.add(statsPanel, "STATS");
+    }
 
-        add(cardPanel);
+    // Methods for Creating repeating Labels, Buttons, etc.
+    public JLabel makeTitleLabel(String text, int size) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("SansSerif", Font.BOLD, size));
+        label.setForeground(Color.WHITE);
+        return label;
+    }
 
-        setVisible(true);
+    public JLabel makeStyledLabel(String text, int size) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Helvetica", Font.BOLD, size));
+        label.setForeground(Color.WHITE);
+        return label;
+    }
+
+    public JLabel makeStyledPlainLabel(String text, int size) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Helvetica", Font.PLAIN, size));
+        label.setForeground(Color.WHITE);
+        return label;
+    }
+    
+    public JButton makeTopButton(String string, int width) {
+        JButton button = new JButton(string);
+        button.setFont(new Font("Helvetica", Font.BOLD, 16));
+        button.setFocusable(false);
+        button.setBackground(backGroundCol);
+        button.setForeground(Color.WHITE);
+        button.setPreferredSize(new Dimension(width, 30));
+        button.setBorder(new MatteBorder(0, 1, 0, 1, borderCol));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    public JButton makeCloseButton() {
+        JButton button = new JButton("X");
+        button.setPreferredSize(new Dimension(80, 50));
+        button.setFont(new Font("Helvetica", Font.PLAIN, 28));
+        button.setFocusable(false);
+        button.setBackground(backGroundCol);
+        button.setForeground(Color.WHITE);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    public JPanel makeStatPanel(JLabel number, String subtitle) {
+        // Panel stats
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        panel.setPreferredSize(new Dimension(105, 100));
+        panel.setBackground(backGroundCol);
+
+        number.setPreferredSize(new Dimension(120, 60));
+        number.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(number, BorderLayout.CENTER);
+
+        JPanel breakLine = new JPanel();
+        breakLine.setPreferredSize(new Dimension(9999, 0));
+        breakLine.setOpaque(false);
+        panel.add(breakLine);
+
+        JLabel maxTitle = makeStyledPlainLabel(subtitle, 16);
+        panel.add(maxTitle, BorderLayout.CENTER);
+
+        return panel;
     }
 
     // CardLayout Methods
     public void showCard(String name) {
         cardLayout.show(cardPanel, name);
-        if (name.equals("GAME")) {
-            typingEnabled = true;
-        } else {
-            typingEnabled = false;
-        }
+        typingEnabled = name.equals("GAME");
     }
 
-    // Reset Methods
+    // Game Reset / Replay Methods
     public void resetAttempts() {
         attempts = 0;
     }
@@ -667,56 +612,22 @@ public class View extends JFrame implements ModelListener {
         }
     }
 
-    // Registering Action Listeners & Key Listeners
-    public void registerKeyListener(KeyListener listener) {
-        this.addKeyListener(listener);
-    }
-
-    public void registerKeyButtonListener(char c, ActionListener listener) {
-        JButton key = keyButtons.get(Character.toUpperCase(c));
-        if (key != null) {
-            key.addActionListener(listener);
-        }
-    }
-
-    public void registerTutorialButtonListener(ActionListener listener) {
-        JButton key = tutorialButton;
-        key.addActionListener(listener);
-    }
-
-    public void registerCloseButtonListener(ActionListener listener) {
-        JButton key = closeButton;
-        key.addActionListener(listener);
-        key = closeButton2;
-        key.addActionListener(listener);
-    }
-
-    public void registerStatsButtonListener(ActionListener listener) {
-        JButton key = statsButton;
-        key.addActionListener(listener);
-    }
-
-    public void registerReplayButtonListener(ActionListener listener) {
-        JButton key = replayButton;
-        key.addActionListener(listener);
-        key = replayButton2;
-        key.addActionListener(listener);
-    }
-
     // Pop up Methods
     public void updatePopUp(String message) {
         popUplabel.setText(message);
-        popUplabel.setBackground(popUpCol);
-        popUplabel.setForeground(Color.BLACK);
 
         // Stop any previous animation thread
         if (currentThread != null && currentThread.isAlive()) {
             currentThread.interrupt();
+            popUplabel.setBackground(backGroundCol);
+            popUplabel.setForeground(backGroundCol);
         }
 
         // Start a new animation thread (used ChatGPT to help with)
         currentThread = new Thread(() -> {
             try {
+                popUplabel.setBackground(popUpCol);
+                popUplabel.setForeground(Color.BLACK);
                 Thread.sleep(1500); // initial pause
 
                 for (int i = 248; i > 18; i -= 2) {
@@ -772,6 +683,8 @@ public class View extends JFrame implements ModelListener {
         // Stop any previous animation thread
         if (currentThread != null && currentThread.isAlive()) {
             currentThread.interrupt();
+            popUplabel.setBackground(backGroundCol);
+            popUplabel.setForeground(backGroundCol);
         }
         int largestDist = 0;
         for (int i = 1; i <= 7; i++) {
@@ -779,8 +692,10 @@ public class View extends JFrame implements ModelListener {
                 largestDist = distributions.get(i);
             }
         }
-
-        int finalMultiplier = 250 / largestDist;
+        if (largestDist == 0) {
+            largestDist = 1;
+        }
+        int finalMultiplier = 300 / largestDist;
 
         // Start a new animation thread (copied the popup label's code)
         currentThread = new Thread(() -> {
@@ -790,7 +705,7 @@ public class View extends JFrame implements ModelListener {
                         return;
                     }
 
-                    // ChatGpt
+                    // ChatGpt used to make the animation
                     double t = i / 50.0;  // progress 0 to 1
                     double easeOut = 1 - Math.pow(1 - t, 3);
                     double multiplier = (double) (easeOut * finalMultiplier);
@@ -821,6 +736,42 @@ public class View extends JFrame implements ModelListener {
         });
 
         currentThread.start();
+    }
+
+    // Registering Action Listeners & Key Listeners
+    public void registerKeyListener(KeyListener listener) {
+        this.addKeyListener(listener);
+    }
+
+    public void registerKeyButtonListener(char c, ActionListener listener) {
+        JButton key = keyButtons.get(Character.toUpperCase(c));
+        if (key != null) {
+            key.addActionListener(listener);
+        }
+    }
+
+    public void registerTutorialButtonListener(ActionListener listener) {
+        JButton key = tutorialButton;
+        key.addActionListener(listener);
+    }
+
+    public void registerCloseButtonListener(ActionListener listener) {
+        JButton key = closeButton;
+        key.addActionListener(listener);
+        key = closeButton2;
+        key.addActionListener(listener);
+    }
+
+    public void registerStatsButtonListener(ActionListener listener) {
+        JButton key = statsButton;
+        key.addActionListener(listener);
+    }
+
+    public void registerReplayButtonListener(ActionListener listener) {
+        JButton key = replayButton;
+        key.addActionListener(listener);
+        key = replayButton2;
+        key.addActionListener(listener);
     }
 
     // Model Listener Methods
