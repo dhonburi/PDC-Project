@@ -39,7 +39,8 @@ public class View extends JFrame implements ModelListener {
     private String currentWord;
     public boolean typingEnabled = false;
     private Thread currentThread;
-
+    
+    // Stats variables
     private int gamesPlayed;
     private int winPercent;
     private int winStreak;
@@ -70,6 +71,7 @@ public class View extends JFrame implements ModelListener {
     private JLabel streakNumber;
     private JLabel maxNumber;
 
+    // Colours
     Color backGroundCol = new Color(18, 18, 19);
     Color borderCol = new Color(58, 58, 60);
     Color keysCol = new Color(129, 131, 132);
@@ -82,7 +84,7 @@ public class View extends JFrame implements ModelListener {
     private CardLayout cardLayout;
 
     public View() {
-        // Basic JFrame setup
+        // JFrame setup
         setTitle("Wordle");
         setSize(600, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -100,6 +102,7 @@ public class View extends JFrame implements ModelListener {
             distLabel.put(i, new JLabel());
 
         }
+        // Setup the Card Panels
         setupTutorialPanel();
         setupGamePanel();
         setupStatsPanel();
@@ -111,6 +114,7 @@ public class View extends JFrame implements ModelListener {
     private void setupGamePanel() {
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
+        
         // Top panel for How-to-Play & Stats Buttons
         topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         topPannel.setBackground(backGroundCol);
@@ -132,7 +136,8 @@ public class View extends JFrame implements ModelListener {
         // Center panel for Announcement / Label
         JPanel CenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         CenterPanel.setBackground(backGroundCol);
-
+        
+        // PopUp Label for announcements ("Not enough letters", "Congratuations")
         JPanel popUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 1000, 0));
         popUpPanel.setBackground(backGroundCol);
         popUpPanel.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
@@ -141,10 +146,10 @@ public class View extends JFrame implements ModelListener {
         popUplabel.setBackground(backGroundCol);
         popUplabel.setForeground(backGroundCol);
         popUplabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
         popUpPanel.add(popUplabel);
 
         CenterPanel.add(popUpPanel, BorderLayout.CENTER);
+        
         // Second Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         gridPanel.setBorder(BorderFactory.createEmptyBorder(0, 1000, 30, 1000));
@@ -152,6 +157,7 @@ public class View extends JFrame implements ModelListener {
         gridPanel.setPreferredSize(new Dimension(280, 400));
         tiles = new JLabel[ROWS][COLS];
 
+        // Creating each letter "tile" and adding it to a hashmap for future editing
         for (int i = 0; i < ROWS; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
             rowPanel.setBackground(backGroundCol);
@@ -184,6 +190,7 @@ public class View extends JFrame implements ModelListener {
             "+ZXCVBNM-"
         };
 
+        // Creating Keyboard Row by Row, using a Flow Layout, and again adding to a hashmap for future editing
         for (String row : rows) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 1));
             rowPanel.setBackground(backGroundCol);
@@ -225,10 +232,10 @@ public class View extends JFrame implements ModelListener {
     }
 
     private void setupTutorialPanel() {
-// Second panel (Tutorial)
+        // Second panel (Tutorial)
         JPanel tutorialPanel = new JPanel(new BorderLayout());
 
-        // Top panel for How-to-Play
+        // Top panel for Tutorial (Just close button top right)
         JPanel tutorialTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         tutorialTopPannel.setBackground(backGroundCol);
 
@@ -236,17 +243,17 @@ public class View extends JFrame implements ModelListener {
         tutorialTopPannel.add(closeButton);
         tutorialPanel.add(tutorialTopPannel, BorderLayout.NORTH);
 
-        // Center Panel for Tutorial
+        // Center Panel for Tutorial ( Two panels allow for centering content on any display size, while keeping text left aligned )
         JPanel tutorialMainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         tutorialMainPanel.setBackground(backGroundCol);
-
+     
         JPanel tutorialCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         tutorialCenterPanel.setPreferredSize(new Dimension(600, 800));
         tutorialCenterPanel.setBackground(backGroundCol);
 
         // Tutorial Title Label
         JLabel tutorialTitle = makeTitleLabel("How to Play", 32);
-        tutorialTitle.setBorder(BorderFactory.createEmptyBorder(-10, 0, 5, 1000));
+        tutorialTitle.setBorder(BorderFactory.createEmptyBorder(-10, 10, 5, 1000));
         tutorialCenterPanel.add(tutorialTitle, BorderLayout.CENTER);
 
         // Subtitle Label
@@ -303,7 +310,8 @@ public class View extends JFrame implements ModelListener {
             tutorialExamplesText.setBorder(BorderFactory.createEmptyBorder(5, 25, 10, 1000));
             tutorialCenterPanel.add(tutorialExamplesText, BorderLayout.CENTER);
         }
-
+        
+        // Closing Label
         JLabel tutorialText = makeStyledPlainLabel("<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>", 17);
         tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
         tutorialCenterPanel.add(tutorialText, BorderLayout.CENTER);
@@ -311,7 +319,6 @@ public class View extends JFrame implements ModelListener {
         tutorialMainPanel.add(tutorialCenterPanel);
         tutorialPanel.add(tutorialMainPanel, BorderLayout.CENTER);
 
-        //Add panels to cardPanel
         cardPanel.add(tutorialPanel, "TUTORIAL");
     }
 
@@ -319,7 +326,7 @@ public class View extends JFrame implements ModelListener {
         // Third panel (Stats)
         JPanel statsPanel = new JPanel(new BorderLayout());
 
-        // Top panel for Stats
+        // Top panel for Stats ( Just for the close button top right )
         JPanel statsTopPannel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         statsTopPannel.setBackground(backGroundCol);
 
@@ -371,12 +378,10 @@ public class View extends JFrame implements ModelListener {
         guessDistPanel.setPreferredSize(new Dimension(9999, 250));
         guessDistPanel.setBackground(backGroundCol);
 
-        // Title Panel
+        // Distribution Title Panel
         JPanel guessDistTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 20));
         guessDistTitlePanel.setBackground(backGroundCol);
-        JLabel guessDistTitle = new JLabel("GUESS DISTRIBUTION");
-        guessDistTitle.setFont(new Font("Helvetica", Font.BOLD, 20));
-        guessDistTitle.setForeground(Color.WHITE);
+        JLabel guessDistTitle = makeStyledLabel("GUESS DISTRIBUTION", 20);
         guessDistTitlePanel.add(guessDistTitle, BorderLayout.CENTER);
         guessDistPanel.add(guessDistTitlePanel, BorderLayout.CENTER);
 
@@ -389,9 +394,7 @@ public class View extends JFrame implements ModelListener {
         for (int i = 1; i < 7; i++) {
             JPanel DistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
             DistPanel.setBackground(backGroundCol);
-            JLabel guessDistTitleNum = new JLabel(Integer.toString(i));
-            guessDistTitleNum.setFont(new Font("Helvetica", Font.BOLD, 16));
-            guessDistTitleNum.setForeground(Color.WHITE);
+            JLabel guessDistTitleNum = makeStyledLabel(Integer.toString(i), 16);
             DistPanel.add(guessDistTitleNum, BorderLayout.CENTER);
 
             JPanel DistBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -399,10 +402,8 @@ public class View extends JFrame implements ModelListener {
             DistBar.setPreferredSize(new Dimension(distributions.get(i) * 10 + 30, 20));
             DistBar.setBackground(gray);
 
-            JLabel guessDistNumber = new JLabel(Integer.toString(distributions.get(i)));
+            JLabel guessDistNumber = makeStyledLabel(Integer.toString(distributions.get(i)), 16);
             distLabel.put(i, guessDistNumber);
-            guessDistNumber.setFont(new Font("Helvetica", Font.BOLD, 16));
-            guessDistNumber.setForeground(Color.WHITE);
             DistBar.add(guessDistNumber, BorderLayout.CENTER);
 
             DistPanel.add(DistBar, BorderLayout.CENTER);
@@ -511,7 +512,7 @@ public class View extends JFrame implements ModelListener {
         typingEnabled = name.equals("GAME");
     }
 
-    // Reset Methods
+    // Game Reset / Replay Methods
     public void resetAttempts() {
         attempts = 0;
     }
