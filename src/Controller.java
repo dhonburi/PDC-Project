@@ -14,8 +14,8 @@ import java.awt.event.KeyEvent;
  */
 public class Controller implements Game {
 
-    private Model model;
-    private View view;
+    private final Model model;
+    private final View view;
 
     private String latestInput = "";
     private boolean inputReady = false;
@@ -29,6 +29,12 @@ public class Controller implements Game {
         model.addListener(view);
         model.updateStats();
 
+        setUpKeyboardListeners();
+        setUpOnscreenKeyboardListeners();
+        setUpButtonListeners();
+    }
+
+    private void setUpKeyboardListeners() {
         view.registerKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -54,7 +60,9 @@ public class Controller implements Game {
                 }
             }
         });
+    }
 
+    private void setUpOnscreenKeyboardListeners() {
         for (char c = 'A'; c <= 'Z'; c++) {
             final char keyChar = c;
             view.registerKeyButtonListener(c, new ActionListener() {
@@ -90,7 +98,9 @@ public class Controller implements Game {
                 }
             }
         });
+    }
 
+    private void setUpButtonListeners() {
         view.registerTutorialButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

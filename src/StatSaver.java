@@ -68,6 +68,9 @@ public class StatSaver implements FileInputReader {
         }
         int won = total;
         total += stats.get(6);
+        if (total == 0) {
+            total = 1;
+        }
         return ((won * 100) / total);
     }
     
