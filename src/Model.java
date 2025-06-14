@@ -22,7 +22,8 @@ public class Model {
 
     ArrayList<String> GUESSED = new ArrayList<>();
 
-    public Model(WordProvider wordProvider, WordValidator wordValidator, StatSaver statSaver, StreakCounter streakCounter) {
+    public Model(WordProvider wordProvider, WordValidator wordValidator, StatSaver statSaver,
+            StreakCounter streakCounter) {
         this.wordProvider = wordProvider;
         this.wordValidator = wordValidator;
         this.statSaver = statSaver;
@@ -61,7 +62,7 @@ public class Model {
     }
 
     // End of Game Methods
-    
+
     public void saveStats(int stats) {
         statSaver.saveStats(stats);
     }
@@ -121,7 +122,6 @@ public class Model {
 
     // Stats Methods
     public void updateStats() {
-        statSaver.readFile();
         streakCounter.readFile();
         notifyListenerStats();
     }
@@ -131,7 +131,7 @@ public class Model {
     }
 
     public int getWinPercentage() {
-        return statSaver.winPercentage();
+        return (int) statSaver.winPercentage();
     }
 
     public int getStreak() {
@@ -188,7 +188,8 @@ public class Model {
 
     private void notifyListenerStats() {
         if (listener != null) {
-            listener.onStats(getGamesPlayed(), getWinPercentage(), getStreak(), getMaxStreak(), getGuessDist(1), getGuessDist(2), getGuessDist(3), getGuessDist(4), getGuessDist(5), getGuessDist(6));
+            listener.onStats(getGamesPlayed(), getWinPercentage(), getStreak(), getMaxStreak(), getGuessDist(1),
+                    getGuessDist(2), getGuessDist(3), getGuessDist(4), getGuessDist(5), getGuessDist(6));
         }
     }
 }
