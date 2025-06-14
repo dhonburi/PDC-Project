@@ -119,6 +119,10 @@ public class Model {
         feedback = temp;
         notifyListenerFeedback();
     }
+    
+    public String getFeedback() {
+        return feedback;
+    }
 
     // Stats Methods
     public void updateStats() {

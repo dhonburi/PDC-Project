@@ -1,7 +1,7 @@
 ----------------------------------------------------------------
-Sun Jun 15 00:29:02 NZST 2025:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0197-6e6a-30b4-000007513058 
-on database directory C:\Users\dhonl\OneDrive\Attachments\Documents\NetBeansProjects\PDC Project 1\dbdata\WordleDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@452b3a41 
+Sun Jun 15 01:19:42 NZST 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0197-6e98-926b-000007010e20 
+on database directory C:\Users\dhonl\OneDrive\Attachments\Documents\NetBeansProjects\PDC Project 1\dbdata\WordleDB with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@70dea4e 
 Loaded from file:/C:/Users/dhonl/OneDrive/Attachments/Documents/NetBeansProjects/PDC%20Project%201/lib/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=21.0.5+9-LTS-239
