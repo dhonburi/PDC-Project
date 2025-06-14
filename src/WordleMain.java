@@ -7,19 +7,20 @@
  *
  * @author dhonl
  */
-
 public class WordleMain {
+
     public static void main(String[] args) {
-        WordProvider wordProvider = new WordProvider();
-        WordValidator wordValidator = new WordValidator();
-        StatSaver statSaver = new StatSaver();
-        StreakCounter streakCounter = new StreakCounter();
+        DatabaseManager dbManager = new DatabaseManager();
+        WordProvider wordProvider = new WordProvider(dbManager);
+        WordValidator wordValidator = new WordValidator(dbManager);
+        StatSaver statSaver = new StatSaver(dbManager);
+        StreakCounter streakCounter = new StreakCounter(dbManager);
+
         Model game = new Model(wordProvider, wordValidator, statSaver, streakCounter);
         View view = new View();
         Controller controller = new Controller(game, view);
 
         controller.startGame();
-        
+
     }
 }
-
