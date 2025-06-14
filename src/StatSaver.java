@@ -1,81 +1,114 @@
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.sql.*;
 import java.util.ArrayList;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 /**
  *
  * @author dhonl
  */
-public class StatSaver implements FileInputReader {
-    ArrayList<Integer> stats = new ArrayList<>();
-    public void saveStats(int attempts) {
-        try {
-            PrintWriter pw = new PrintWriter(new FileOutputStream("./resources/stats.txt", true));
-            pw.println(attempts);
-            pw.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Error finding file");
-        }
+public class StatSaver {
+
+    private static final String DB_URL = "jdbc:derby:dbdata/WordleDB;create=true";
+
+    public StatSaver() {
+        initializeDatabase();
     }
 
-    @Override
-    public void readFile() {
-        stats.clear();
-        for (int i = 0; i < 7; i++) {
-            stats.add(0);
-        }
-        try {
-            FileReader s = new FileReader("./resources/stats.txt");
-            BufferedReader inStream = new BufferedReader(s);
+    private void initializeDatabase() {
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement()) {
 
-            String line = inStream.readLine();
-            while (line != null) {
-                int index = Integer.parseInt(line) - 1;
-                stats.set(index, stats.get(index) + 1);
-                line = inStream.readLine();
+            stmt.executeUpdate("CREATE TABLE GameStats (id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, timestamp TIMESTAMP, guesses INT, won BOOLEAN, streak INT)");
+        } catch (SQLException e) {
+            if (!"X0Y32".equals(e.getSQLState())) {
+                e.printStackTrace();
             }
-            
-            inStream.close();
-            
-        } catch (FileNotFoundException e) {
-            System.out.println("Error finding file");
-        } catch (IOException e) {
-            System.out.println("Error reading from file");
         }
     }
-    
+
+    public void saveStats(int guesses) {
+        recordGuessDistribution(guesses, true, 0); // default win = true and streak = 0 for compatibility
+    }
+
+    public void recordGuessDistribution(int guesses, boolean won, int streak) {
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement("INSERT INTO GameStats (timestamp, guesses, won, streak) VALUES (CURRENT_TIMESTAMP, ?, ?, ?)")) {
+
+            ps.setInt(1, guesses);
+            ps.setBoolean(2, won);
+            ps.setInt(3, streak);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readFile() {
+        // No-op placeholder to match existing method call
+    }
+
     public int gamesPlayed() {
-        int total = 0;
-        for (int index = 0; index < 7; index++) {
-            total += stats.get(index);
+        int count = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM GameStats")) {
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return total;
+        return count;
     }
-    
-    public int winPercentage() {
-        int total = 0;
-        for (int index = 0; index < 5; index++) {
-            total += stats.get(index);
+
+    public double winPercentage() {
+        int wins = 0, total = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT won FROM GameStats")) {
+
+            while (rs.next()) {
+                total++;
+                if (rs.getBoolean("won")) wins++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        int won = total;
-        total += stats.get(6);
-        if (total == 0) {
-            total = 1;
-        }
-        return ((won * 100) / total);
+        return total == 0 ? 0.0 : (wins * 100.0 / total);
     }
-    
-    public int getGuessDist(int guesses) {
-        return stats.get(guesses - 1);
+
+    public int getGuessDist(int guessCount) {
+        int count = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM GameStats WHERE guesses = ?")) {
+            ps.setInt(1, guessCount);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) count = rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public ArrayList<Integer> getGuessDistribution() {
+        ArrayList<Integer> distribution = new ArrayList<>();
+        for (int i = 0; i < 7; i++) distribution.add(0);
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery("SELECT guesses, won FROM GameStats")) {
+
+            while (rs.next()) {
+                int guesses = rs.getInt("guesses");
+                boolean won = rs.getBoolean("won");
+                if (!won || guesses > 6) {
+                    distribution.set(6, distribution.get(6) + 1);
+                } else {
+                    distribution.set(guesses - 1, distribution.get(guesses - 1) + 1);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return distribution;
     }
 }
-

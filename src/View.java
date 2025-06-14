@@ -39,10 +39,10 @@ public class View extends JFrame implements ModelListener {
     private String currentWord;
     public boolean typingEnabled = false;
     private Thread currentThread;
-    
+
     // Stats variables
     private int gamesPlayed;
-    private int winPercent;
+    private double winPercent;
     private int winStreak;
     private int maxStreak;
     private HashMap<Integer, Integer> distributions = new HashMap<>();
@@ -114,7 +114,7 @@ public class View extends JFrame implements ModelListener {
     private void setupGamePanel() {
         // First panel (Game)
         JPanel gamePanel = new JPanel(new BorderLayout());
-        
+
         // Top panel for How-to-Play & Stats Buttons
         topPannel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         topPannel.setBackground(backGroundCol);
@@ -136,7 +136,7 @@ public class View extends JFrame implements ModelListener {
         // Center panel for Announcement / Label
         JPanel CenterPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         CenterPanel.setBackground(backGroundCol);
-        
+
         // PopUp Label for announcements ("Not enough letters", "Congratuations")
         JPanel popUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 1000, 0));
         popUpPanel.setBackground(backGroundCol);
@@ -149,7 +149,7 @@ public class View extends JFrame implements ModelListener {
         popUpPanel.add(popUplabel);
 
         CenterPanel.add(popUpPanel, BorderLayout.CENTER);
-        
+
         // Second Center panel for tile grid
         JPanel gridPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 6));
         gridPanel.setBorder(BorderFactory.createEmptyBorder(0, 1000, 30, 1000));
@@ -178,19 +178,20 @@ public class View extends JFrame implements ModelListener {
         CenterPanel.add(gridPanel, BorderLayout.CENTER);
         gamePanel.add(CenterPanel, BorderLayout.CENTER);
 
-        // Bottom Panel for Keyboard 
+        // Bottom Panel for Keyboard
         JPanel keyboardPanel = new JPanel();
         keyboardPanel.setLayout(new GridLayout(3, 1, 5, 5));
         keyboardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
         keyboardPanel.setBackground(backGroundCol);
 
         String[] rows = {
-            "QWERTYUIOP",
-            "ASDFGHJKL",
-            "+ZXCVBNM-"
+                "QWERTYUIOP",
+                "ASDFGHJKL",
+                "+ZXCVBNM-"
         };
 
-        // Creating Keyboard Row by Row, using a Flow Layout, and again adding to a hashmap for future editing
+        // Creating Keyboard Row by Row, using a Flow Layout, and again adding to a
+        // hashmap for future editing
         for (String row : rows) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 1));
             rowPanel.setBackground(backGroundCol);
@@ -243,10 +244,11 @@ public class View extends JFrame implements ModelListener {
         tutorialTopPannel.add(closeButton);
         tutorialPanel.add(tutorialTopPannel, BorderLayout.NORTH);
 
-        // Center Panel for Tutorial ( Two panels allow for centering content on any display size, while keeping text left aligned )
+        // Center Panel for Tutorial ( Two panels allow for centering content on any
+        // display size, while keeping text left aligned )
         JPanel tutorialMainPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         tutorialMainPanel.setBackground(backGroundCol);
-     
+
         JPanel tutorialCenterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
         tutorialCenterPanel.setPreferredSize(new Dimension(600, 800));
         tutorialCenterPanel.setBackground(backGroundCol);
@@ -262,15 +264,20 @@ public class View extends JFrame implements ModelListener {
         tutorialCenterPanel.add(tutorialSubtitle, BorderLayout.CENTER);
 
         // Bullet Label
-        JLabel tutorialBullet = makeStyledPlainLabel("<html><ul><li>Each guess must be a valid 5-letter word.</li></ul></html>", 17);
+        JLabel tutorialBullet = makeStyledPlainLabel(
+                "<html><ul><li>Each guess must be a valid 5-letter word.</li></ul></html>", 17);
         tutorialBullet.setBorder(BorderFactory.createEmptyBorder(-5, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet, BorderLayout.CENTER);
 
-        JLabel tutorialBullet2 = makeStyledPlainLabel("<html><ul><li>The color of the tiles will change to show how close your<br>guess was to the word.</li></ul></html>", 17);
+        JLabel tutorialBullet2 = makeStyledPlainLabel(
+                "<html><ul><li>The color of the tiles will change to show how close your<br>guess was to the word.</li></ul></html>",
+                17);
         tutorialBullet2.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet2, BorderLayout.CENTER);
 
-        JLabel tutorialBullet3 = makeStyledPlainLabel("<html><ul><li>Use either the onscreen keyboard, or use your device's<br>keyboard. Enter to sumbit guess.</li></ul></html>", 17);
+        JLabel tutorialBullet3 = makeStyledPlainLabel(
+                "<html><ul><li>Use either the onscreen keyboard, or use your device's<br>keyboard. Enter to sumbit guess.</li></ul></html>",
+                17);
         tutorialBullet3.setBorder(BorderFactory.createEmptyBorder(-15, -10, 0, 1000));
         tutorialCenterPanel.add(tutorialBullet3, BorderLayout.CENTER);
 
@@ -280,8 +287,10 @@ public class View extends JFrame implements ModelListener {
         tutorialCenterPanel.add(tutorialExamplesTitle, BorderLayout.CENTER);
 
         // Example Grid (Modified the Game Card code)
-        String[] words = {"CRANE", "ABOUT", "HOUSE"};
-        String[] caption = {"<html><b><em>C</em></b> is in the word and in the correct spot.</html>", "<html><b><em>B</em></b> is in the word but in the wrong spot.</html>", "<html><b><em>S</em></b> is not in the word in any spot.</html>"};
+        String[] words = { "CRANE", "ABOUT", "HOUSE" };
+        String[] caption = { "<html><b><em>C</em></b> is in the word and in the correct spot.</html>",
+                "<html><b><em>B</em></b> is in the word but in the wrong spot.</html>",
+                "<html><b><em>S</em></b> is not in the word in any spot.</html>" };
         for (int i = 0; i < 3; i++) {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
             rowPanel.setBackground(backGroundCol);
@@ -310,9 +319,11 @@ public class View extends JFrame implements ModelListener {
             tutorialExamplesText.setBorder(BorderFactory.createEmptyBorder(5, 25, 10, 1000));
             tutorialCenterPanel.add(tutorialExamplesText, BorderLayout.CENTER);
         }
-        
+
         // Closing Label
-        JLabel tutorialText = makeStyledPlainLabel("<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>", 17);
+        JLabel tutorialText = makeStyledPlainLabel(
+                "<html>Press <b><em>'X'</em></b> on the top right of the screen or the <b><em>'Esc'</em></b> key <br>to close this Tutorial Menu and start playing!</html>",
+                17);
         tutorialText.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 1000));
         tutorialCenterPanel.add(tutorialText, BorderLayout.CENTER);
 
@@ -357,7 +368,7 @@ public class View extends JFrame implements ModelListener {
         statsInnerPanel.add(playedPanel, BorderLayout.CENTER);
 
         // Panel for win percentage stat
-        percentNumber = makeStyledPlainLabel(Integer.toString(winPercent), 64);
+        percentNumber = makeStyledPlainLabel(String.format("%.1f", winPercent), 64);
         JPanel percentPanel = makeStatPanel(percentNumber, "Win %");
         statsInnerPanel.add(percentPanel, BorderLayout.CENTER);
 
@@ -390,7 +401,7 @@ public class View extends JFrame implements ModelListener {
         breakLine5.setOpaque(false);
         guessDistPanel.add(breakLine5);
 
-        // Distribution  Panel
+        // Distribution Panel
         for (int i = 1; i < 7; i++) {
             JPanel DistPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
             DistPanel.setBackground(backGroundCol);
@@ -460,7 +471,7 @@ public class View extends JFrame implements ModelListener {
         label.setForeground(Color.WHITE);
         return label;
     }
-    
+
     public JButton makeTopButton(String string, int width) {
         JButton button = new JButton(string);
         button.setFont(new Font("Helvetica", Font.BOLD, 16));
@@ -575,7 +586,7 @@ public class View extends JFrame implements ModelListener {
                     }
                     break;
                 default:
-                    setTile(attempt - 1, i, Color.RED); //only if error
+                    setTile(attempt - 1, i, Color.RED); // only if error
                     break;
             }
             try {
@@ -670,7 +681,7 @@ public class View extends JFrame implements ModelListener {
     // Stats Page Methods
     public void updateStats() {
         gamesPlayedNumber.setText(Integer.toString(gamesPlayed));
-        percentNumber.setText(Integer.toString(winPercent));
+        percentNumber.setText(String.format("%.1f", winPercent));
         streakNumber.setText(Integer.toString(winStreak));
         maxNumber.setText(Integer.toString(maxStreak));
         for (int i = 1; i <= 7; i++) {
@@ -706,14 +717,15 @@ public class View extends JFrame implements ModelListener {
                     }
 
                     // ChatGpt used to make the animation
-                    double t = i / 50.0;  // progress 0 to 1
+                    double t = i / 50.0; // progress 0 to 1
                     double easeOut = 1 - Math.pow(1 - t, 3);
                     double multiplier = (double) (easeOut * finalMultiplier);
 
                     for (int j = 1; j <= 7; j++) {
                         int barNum = j;
                         SwingUtilities.invokeLater(() -> {
-                            distBar.get(barNum).setPreferredSize(new Dimension((int) (distributions.get(barNum) * multiplier) + 30, 20));
+                            distBar.get(barNum).setPreferredSize(
+                                    new Dimension((int) (distributions.get(barNum) * multiplier) + 30, 20));
                             distBar.get(barNum).revalidate();
                             distBar.get(barNum).repaint();
                         });
@@ -787,7 +799,8 @@ public class View extends JFrame implements ModelListener {
     }
 
     @Override
-    public void onStats(int played, int percent, int streak, int max, int dist1, int dist2, int dist3, int dist4, int dist5, int dist6) {
+    public void onStats(int played, double percent, int streak, int max, int dist1, int dist2, int dist3, int dist4,
+            int dist5, int dist6) {
         gamesPlayed = played;
         winPercent = percent;
         winStreak = streak;
