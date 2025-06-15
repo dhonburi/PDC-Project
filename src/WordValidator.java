@@ -72,10 +72,6 @@ public class WordValidator implements FileInputReader {
     }
 
     boolean isValidGuessWord(String guess) {
-        if (!WORDS.contains(guess.toLowerCase().trim())) {
-            System.out.println("Guess not found: '" + guess + "'");
-            System.out.println("Sample words: " + WORDS.subList(0, Math.min(5, WORDS.size())));
-        }
         return WORDS.contains(guess);
     }
 }
